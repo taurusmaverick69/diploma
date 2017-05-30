@@ -14,10 +14,4 @@ public class SmartphoneController {
         throw new NullPointerException();
     }
 
-    @GetMapping("/")
-    public String findAll2(Model model) {
-        model.addAttribute("serverTime", new Date());
-        return "test";
-    }
-
 }
