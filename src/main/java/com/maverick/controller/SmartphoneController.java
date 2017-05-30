@@ -1,22 +1,23 @@
 package com.maverick.controller;
 
-import com.maverick.domain.Smartphone;
-import com.maverick.repository.SmartphoneRepository;
-import com.maverick.service.SmartphoneService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Date;
 
-@RestController
+@Controller
 public class SmartphoneController {
 
-    @Autowired
-    private SmartphoneService smartphoneService;
-
-    @GetMapping
-    public List<Smartphone> findAll() {
-        return smartphoneService.findAll();
+    @GetMapping("/test")
+    public String findAll() {
+        throw new NullPointerException();
     }
+
+    @GetMapping("/")
+    public String findAll2(Model model) {
+        model.addAttribute("serverTime", new Date());
+        return "test";
+    }
+
 }
