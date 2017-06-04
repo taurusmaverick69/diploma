@@ -8,10 +8,7 @@ import javax.persistence.*;
  * Created by sednor-7 on 01/06/17.
  */
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class Sale {
 
     @Id
