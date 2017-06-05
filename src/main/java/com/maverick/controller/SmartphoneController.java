@@ -10,10 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.Year;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -31,14 +31,14 @@ public class SmartphoneController {
 
     @GetMapping("/main")
     public String main(Model model) {
+
+
+        List<Integer> years =
+                IntStream.rangeClosed(1996, Year.now().getValue()).boxed().collect(toList());
+
+
         model.addAttribute("smartphones", smartphoneRepository.findAll());
-
-
         List<Sale> bySmartphone = saleRepository.findBySmartphone(smartphoneRepository.findOne(1));
-
-
-
-
         model.addAttribute("numbers", bySmartphone.stream().map(Sale::getQuantity).collect(toList()));
         model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
 
