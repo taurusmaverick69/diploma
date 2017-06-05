@@ -16,18 +16,14 @@
 </form>
 
 
-<div th:if="${param.error}">
-    <script>
-        Materialize.toast(' Invalid username and password.', 1000, 'rounded')
-    </script>
-</div>
+<script th:if="${param.error}">
+    Materialize.toast(' Invalid username and password.', 2000, 'rounded')
+</script>
 
-<div th:if="${param.logout}">
-    <script>
-        Materialize.toast('You have been logged out.', 1000)
-    </script>
-</div>
 
+<script th:if="${param.logout}">
+    Materialize.toast('You have been logged out.', 2000, 'rounded')
+</script>
 
 
 </body>

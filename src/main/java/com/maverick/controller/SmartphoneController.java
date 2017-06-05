@@ -25,23 +25,23 @@ public class SmartphoneController {
     @Autowired
     private SeasonCoefficientRepository seasonCoefficientRepository;
 
-//    @GetMapping("/")
-//    public String findAll(Model model, HttpSession session) {
-//
+    @GetMapping("/")
+    public String findAll(Model model, HttpSession session) {
+
+        throw new IllegalStateException();
+
 //        Smartphone smartphone = new Smartphone();
 //        smartphone.setReleaseYear(2016);
 //        model.addAttribute(smartphone);
-//
 //        session.setAttribute("test", "111");
-//
 ////        model.addAttribute("smartphones", smartphoneRepository.findAll());
 ////        System.out.println(model);
 //        return "main";
-//    }
-//
-//    @PostMapping("/save")
-//    public String save(@ModelAttribute Smartphone smartphone) {
-//        System.out.println(smartphone);
-//        return "new";
-//    }
+    }
+
+    @PostMapping("/save")
+    public String save(@ModelAttribute Smartphone smartphone) {
+        System.out.println(smartphone);
+        return "new";
+    }
 }
