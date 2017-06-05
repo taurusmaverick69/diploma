@@ -7,24 +7,60 @@
     <script src="/webjars/jquery/3.1.1/jquery.min.js"></script>
     <script src="/webjars/materializecss/0.98.2/js/materialize.min.js"></script>
 </head>
-<body>
 
-<form th:action="@{/login}" method="post">
-    <div><label> User Name : <input type="text" name="username"/> </label></div>
-    <div><label> Password: <input type="password" name="password"/> </label></div>
-    <div><input type="submit" value="Sign In"/></div>
-</form>
+<body>
+<main class="center-align">
+    <div class="section"></div>
+    <div class="section"></div>
+    <div class="section"></div>
+    <div class="section"></div>
+    <div class="section"></div>
+    <div class="section"></div>
+    <div class="section"></div>
+    <h5 class="indigo-text">Hello, guest, please, login into your account</h5>
+
+
+    <div class="container">
+        <div class="z-depth-1 grey lighten-4 row"
+             style="display: inline-block; padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
+
+            <form th:action="@{/login}" method="post">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">account_circle</i>
+                        <input class="validate" type="email" id="email" name="username"/>
+                        <label class="active" for="email">Email</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">vpn_key</i>
+                        <input class="validate" type="password" id="password" name="password"/>
+                        <label class="active" for="password">Password</label>
+                    </div>
+
+                    <label style="float: right;">
+                        <a class="pink-text" href="#!"><b>Forgot Password?</b></a>
+                    </label>
+                </div>
+                <div class="row">
+                    <button type="submit" class="col s12 btn btn-large waves-effect indigo">
+                        Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
 
 
 <script th:if="${param.error}">
-    Materialize.toast(' Invalid username and password.', 2000, 'rounded')
+    Materialize.toast(" Invalid username and password.", 2000, "rounded")
 </script>
-
 
 <script th:if="${param.logout}">
-    Materialize.toast('You have been logged out.', 2000, 'rounded')
+    Materialize.toast("You have been logged out.", 2000, "rounded")
 </script>
-
 
 </body>
 </html>

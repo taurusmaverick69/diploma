@@ -1,6 +1,7 @@
 package com.maverick.controller;
 
-import com.maverick.domain.Smartphone;
+import com.maverick.domain.Sale;
+import com.maverick.domain.Season;
 import com.maverick.repository.SaleRepository;
 import com.maverick.repository.SeasonCoefficientRepository;
 import com.maverick.repository.SmartphoneRepository;
@@ -8,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Controller
 public class SmartphoneController {
@@ -25,23 +29,26 @@ public class SmartphoneController {
     @Autowired
     private SeasonCoefficientRepository seasonCoefficientRepository;
 
-    @GetMapping("/")
-    public String findAll(Model model, HttpSession session) {
+    @GetMapping("/main")
+    public String main(Model model) {
+        model.addAttribute("smartphones", smartphoneRepository.findAll());
 
-        throw new IllegalStateException();
 
-//        Smartphone smartphone = new Smartphone();
-//        smartphone.setReleaseYear(2016);
-//        model.addAttribute(smartphone);
-//        session.setAttribute("test", "111");
-////        model.addAttribute("smartphones", smartphoneRepository.findAll());
-////        System.out.println(model);
-//        return "main";
+        List<Sale> bySmartphone = saleRepository.findBySmartphone(smartphoneRepository.findOne(1));
+
+
+
+
+        model.addAttribute("numbers", bySmartphone.stream().map(Sale::getQuantity).collect(toList()));
+        model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
+
+        return "main";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute Smartphone smartphone) {
-        System.out.println(smartphone);
-        return "new";
-    }
+
+//    @PostMapping("/save")
+//    public String save(@ModelAttribute Smartphone smartphone) {
+//        System.out.println(smartphone);
+//        return "new";
+//    }
 }
