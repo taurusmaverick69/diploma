@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.Year;
 import java.util.Arrays;
@@ -32,23 +33,20 @@ public class SmartphoneController {
     @GetMapping("/main")
     public String main(Model model) {
 
-
         List<Integer> years =
                 IntStream.rangeClosed(1996, Year.now().getValue()).boxed().collect(toList());
 
-
         model.addAttribute("smartphones", smartphoneRepository.findAll());
+        model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
         List<Sale> bySmartphone = saleRepository.findBySmartphone(smartphoneRepository.findOne(1));
         model.addAttribute("numbers", bySmartphone.stream().map(Sale::getQuantity).collect(toList()));
-        model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
 
         return "main";
     }
 
-
-//    @PostMapping("/save")
-//    public String save(@ModelAttribute Smartphone smartphone) {
-//        System.out.println(smartphone);
-//        return "new";
-//    }
+    @GetMapping("/statistics/{id}")
+    public String showStatistics(@PathVariable Integer id, Model model) {
+        model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
+        return "statistics";
+    }
 }
