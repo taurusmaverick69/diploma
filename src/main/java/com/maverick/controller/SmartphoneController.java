@@ -32,15 +32,12 @@ public class SmartphoneController {
 
     @GetMapping("/main")
     public String main(Model model) {
-
         List<Integer> years =
                 IntStream.rangeClosed(1996, Year.now().getValue()).boxed().collect(toList());
-
         model.addAttribute("smartphones", smartphoneRepository.findAll());
         model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
         List<Sale> bySmartphone = saleRepository.findBySmartphone(smartphoneRepository.findOne(1));
         model.addAttribute("numbers", bySmartphone.stream().map(Sale::getQuantity).collect(toList()));
-
         return "main";
     }
 
