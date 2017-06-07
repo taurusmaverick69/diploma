@@ -17,12 +17,4 @@ public class SmartphoneService {
     public List<Smartphone> findAll() {
         return smartphoneRepository.findAll();
     }
-
-    public static void main(String[] args) {
-
-        UUID uuid = UUID.randomUUID();
-
-        System.out.println(uuid);
-    }
-
 }
