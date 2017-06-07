@@ -1,6 +1,14 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <style>
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
+    </style>
     <title>WebJars Demo</title>
     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     <link rel="stylesheet" href="/webjars/materializecss/0.98.2/css/materialize.min.css"/>
@@ -10,16 +18,8 @@
 
 <body>
 <main class="center-align">
-    <div class="section"></div>
-    <div class="section"></div>
-    <div class="section"></div>
-    <div class="section"></div>
-    <div class="section"></div>
-    <div class="section"></div>
-    <div class="section"></div>
-    <h5 class="indigo-text">Hello, guest, please, login into your account</h5>
-
     <div class="container">
+        <h5 class="indigo-text">Hello, guest, please, login into your account</h5>
         <div class="z-depth-1 grey lighten-4 row"
              style="display: inline-block; padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
 
