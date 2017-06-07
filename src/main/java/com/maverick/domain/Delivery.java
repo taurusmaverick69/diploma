@@ -9,13 +9,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.util.Date;
 
-/**
- * Created by sednor-7 on 01/06/17.
- */
 @Entity
 @Getter
 @Setter
-public class Sale {
+public class Delivery {
 
     @Id
     @GeneratedValue

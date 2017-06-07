@@ -3,7 +3,11 @@ package com.maverick.domain;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import java.util.Date;
 
 /**
  * Created by sednor-7 on 01/06/17.
@@ -16,8 +20,9 @@ public class SeasonCoefficient {
     @Id
     @GeneratedValue
     private Integer id;
-    private String country;
-    @Enumerated(EnumType.STRING)
-    private Season season;
+    @ManyToOne
+    private Country country;
+    private Date startDate;
+    private Date endDate;
     private Double coefficient;
 }
