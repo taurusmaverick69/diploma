@@ -64,6 +64,6 @@ public class SmartphoneController {
 //        List<Sale> all3 = saleRepository.findAll();
 //        List<SeasonCoefficient> all4 = seasonCoefficientRepository.findAll();
 //        List<Smartphone> all5 = smartphoneRepository.findAll();
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(smartphoneRepository.findAll(), HttpStatus.OK);
     }
 }

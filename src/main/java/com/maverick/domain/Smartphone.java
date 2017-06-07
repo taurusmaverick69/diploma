@@ -23,5 +23,6 @@ public class Smartphone {
     private Integer releaseYear;
     private Double rating;
     private Integer quantity;
+    private Boolean isTracked;
 
 }
