@@ -1,6 +1,6 @@
 package com.maverick.controller;
 
-import com.maverick.domain.*;
+import com.maverick.domain.Sale;
 import com.maverick.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,12 +57,13 @@ public class SmartphoneController {
 
     @GetMapping("/testAll")
     public ResponseEntity test() {
-        List<Brand> all = brandRepository.findAll();
-        List<Country> all1 = countryRepository.findAll();
-        List<Delivery> all2 = deliveryRepository.findAll();
-        List<Sale> all3 = saleRepository.findAll();
-        List<SeasonCoefficient> all4 = seasonCoefficientRepository.findAll();
-        List<Smartphone> all5 = smartphoneRepository.findAll();
-        return new ResponseEntity(HttpStatus.OK);
+
+//        List<Brand> all = brandRepository.findAll();
+//        List<Country> all1 = countryRepository.findAll();
+//        List<Delivery> all2 = deliveryRepository.findAll();
+//        List<Sale> all3 = saleRepository.findAll();
+//        List<SeasonCoefficient> all4 = seasonCoefficientRepository.findAll();
+//        List<Smartphone> all5 = smartphoneRepository.findAll();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

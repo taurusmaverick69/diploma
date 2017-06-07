@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.sql.DataSource;
 
@@ -15,6 +16,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private DataSource dataSource;
+
+    private static final String FIND_USER_BY_USERNAME = "select * from users where username = ?";
+    private static final String FIND_AUTHORITIES_BY_USERNAME = "select * from user_roles where username = ?";
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -37,7 +41,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
-                .usersByUsernameQuery("select username,password, enabled from users where username=?")
-                .authoritiesByUsernameQuery("select username, role from user_roles where username=?");
+                .passwordEncoder(new BCryptPasswordEncoder())
+                .usersByUsernameQuery(FIND_USER_BY_USERNAME)
+                .authoritiesByUsernameQuery(FIND_AUTHORITIES_BY_USERNAME);
     }
 }

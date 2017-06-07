@@ -9,7 +9,6 @@
             min-height: 100vh;
             flex-direction: column;
         }
-
         main {
             flex: 1 0 auto;
         }
@@ -50,7 +49,8 @@
             <tbody>
             <tr th:each="smartphone: ${smartphones}">
                 <!--/*@thymesVar id="smartphone" type="com.maverick.domain.Smartphone"*/-->
-                <td th:text="${smartphone.brand}"/>
+                <!--/*@thymesVar id="brand" type="com.maverick.domain.Brand"*/-->
+                <td th:text="${smartphone.brand.brand}"/>
                 <td th:text="${smartphone.model}"/>
                 <td th:text="${smartphone.releaseYear}"/>
                 <td th:text="${smartphone.quantity}"/>
