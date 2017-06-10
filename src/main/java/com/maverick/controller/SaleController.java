@@ -1,6 +1,5 @@
 package com.maverick.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.maverick.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,9 +21,9 @@ public class SaleController {
     private SaleService saleService;
 
     @GetMapping("/{id}")
-    public String findBySmartphoneId(@PathVariable Integer id, Model model) throws JsonProcessingException {
+    public String findBySmartphoneId(@PathVariable Integer id, Model model) {
         model.addAttribute("months", Arrays.stream(Month.values()).map(Enum::toString).collect(toList()));
-        model.addAttribute("data",  saleService.findBySmartphoneId(id));
+        model.addAttribute("data", saleService.findBySmartphoneId(id));
         return "sales";
     }
 }
