@@ -1,5 +1,6 @@
 package com.maverick.domain;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,8 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 @Entity
-@Getter
-@Setter
+@Data
 public class Smartphone {
 
     @Id

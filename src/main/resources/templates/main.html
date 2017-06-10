@@ -23,12 +23,25 @@
 
 <body>
 <header>
+    <ul id="dropdown1" class="dropdown-content">
+        <li><a href="/coefficient">Coefficients</a></li>
+        <li class="divider"></li>
+        <li><a href="/logout"><i class="material-icons right">exit_to_app</i>Logout</a></li>
+    </ul>
+
     <nav>
         <div class="nav-wrapper">
             <a href="#" class="brand-logo left">Main Page</a>
             <ul class="right">
-                <li>You're logged as: <span sec:authentication="name"></span></li>
-                <li><a href="/logout"><i class="material-icons right">exit_to_app</i>Logout</a></li>
+
+
+                <li>
+                    <a class="dropdown-button" href="#!" data-activates="dropdown1">
+                        Logged as <span sec:authentication="name"/>
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
+
             </ul>
         </div>
     </nav>
@@ -78,48 +91,25 @@
             </tr>
             </tbody>
         </table>
-
-        <form action="#" th:action="@{/coef}" th:object="${coefficient}" method="post">
-            START DATE<input type="date" class="datepicker" th:field="*{startDate}"/>
-            END DATE <input type="date" class="datepicker" th:field="*{endDate}"/>
-
-            <!--<div class="input-field col s12">-->
-            <select th:field="*{country}">
-                <option value="" disabled="disabled" selected="selected">Choose your option</option>
-
-
-                <option th:each="country:${countries}" th:value="${country.id}" th:text="${country.country}"/>
-
-                <!--<option value="2">Option 2</option>-->
-                <!--<option value="3">Option 3</option>-->
-            </select>
-
-            <!--</div>-->
-
-            <!--<p>Message: <input type="number" th:field="*{coefficient4}" /></p>-->
-            <input type="submit" value="Submit"/>
-
-        </form>
-
-
     </div>
 </main>
 
 <script>
-
     function updateTracking(id) {
         var c = document.getElementById('tracked' + id).checked;
         var req = new XMLHttpRequest();
-        req.open("PUT", "/" + id + "?isTracked=" + c, true);
+        req.open("PUT", "/smartphone/" + id + "?isTracked=" + c, true);
         req.send();
+        console.log(req.response)
+
     }
 
     $(document).ready(function () {
-        $('select').material_select();
-    });
-
-    $('.datepicker').pickadate({
-        selectMonths: true, // Creates a dropdown to control month
+        $(".dropdown-button").dropdown(
+            {
+                belowOrigin: true
+            }
+        );
     });
 </script>
 

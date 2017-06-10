@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>Main Page</title>
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+    </style>
+    <script src="/webjars/jquery/3.1.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons"/>
+    <link rel="stylesheet" href="webjars/materializecss/0.98.2/css/materialize.min.css"/>
+    <script src="webjars/materializecss/0.98.2/js/materialize.min.js"></script>
+</head>
+<body>
+
+<header>
+    <ul id="dropdown1" class="dropdown-content">
+        <li><a href="/coefficient">Coefficients</a></li>
+        <li class="divider"></li>
+        <li><a href="/logout"><i class="material-icons right">exit_to_app</i>Logout</a></li>
+    </ul>
+
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo left">Coefficients</a>
+            <ul class="right">
+                <li>
+                    <a class="dropdown-button" href="#!" data-activates="dropdown1">
+                        Logged as <span sec:authentication="name"/>
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <table class="striped">
+            <thead>
+            <tr>
+                <th>Country</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Coefficient</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="coefficient:${coefficients}">
+                <!--/*@thymesVar id="coefficient" type="com.maverick.domain.SeasonCoefficient"*/-->
+                <td th:text="${coefficient.country.country}"/>
+                <td th:text="${#dates.format(coefficient.startDate, 'dd.MM.yyy')}"/>
+                <td th:text="${#dates.format(coefficient.endDate, 'dd.MM.yyy')}"/>
+                <td th:text="${coefficient.coefficient}"/>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="modal" class="modal">
+        <form action="#" th:action="@{/coefficient}" th:object="${coefficient}" method="post" class="col s12">
+
+            <div class="modal-content">
+                <h4>Add coefficient</h4>
+                <div class="row">
+                    <div class="row modal-form-row">
+                        <div class="input-field col s12">
+                            <input id="startDate" type="date" class="datepicker" th:field="*{startDate}"/>
+                            <label for="startDate">Start date</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="endDate" type="date" class="datepicker" th:field="*{endDate}"/>
+                            <label for="endDate">End date</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <select id="country" th:field="*{country}">
+                                <option value="" disabled="disabled" selected="selected">Choose your option</option>
+                                <option th:each="country:${countries}" th:value="${country.id}"
+                                        th:text="${country.country}"/>
+                            </select>
+                            <label for="country">Country</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="coefficient" type="number" step="0.01" th:field="*{coefficient}"/>
+                            <label class="active" for="coefficient">Coefficient</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input class=" modal-action waves-effect btn-flat" type="submit" value="Save"/>
+            </div>
+        </form>
+    </div>
+
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large" href="#modal">
+            <i class="large material-icons">add</i>
+        </a>
+    </div>
+</main>
+
+<footer class="page-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col l6 s12">
+                <h5 class="white-text">Footer Content</h5>
+                <p class="grey-text text-lighten-4">You can use rows and columns here to organize your footer
+                    content.</p>
+            </div>
+            <!--<div class="col l4 offset-l2 s12">-->
+            <!--<h5 class="white-text">Links</h5>-->
+            <!--<ul>-->
+            <!--<li><a class="grey-text text-lighten-3" href="#!">Link 1</a></li>-->
+            <!--<li><a class="grey-text text-lighten-3" href="#!">Link 2</a></li>-->
+            <!--<li><a class="grey-text text-lighten-3" href="#!">Link 3</a></li>-->
+            <!--<li><a class="grey-text text-lighten-3" href="#!">Link 4</a></li>-->
+            <!--</ul>-->
+            <!--</div>-->
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <div class="container center-align">
+            © 2017 Vladislav Lyubimtsev, KNURE DIPLOMA, ALL RIGHTS RESERVED
+            <!--<a class="grey-text text-lighten-4 right" href="#!">More Links</a>-->
+        </div>
+    </div>
+</footer>
+<script>
+    $(document).ready(function () {
+        $('.modal').modal();
+        $('select').material_select();
+    });
+
+    $('.datepicker').pickadate({
+        selectMonths: true,
+        container: 'body'
+    });
+
+
+</script>
+</body>
+</html>

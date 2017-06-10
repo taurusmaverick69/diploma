@@ -1,5 +1,6 @@
 package com.maverick.domain;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +14,7 @@ import java.util.Date;
  * Created by sednor-7 on 01/06/17.
  */
 @Entity
-@Getter
-@Setter
+@Data
 public class SeasonCoefficient {
 
     @Id

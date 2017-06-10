@@ -1,5 +1,6 @@
 package com.maverick.domain;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +11,7 @@ import javax.persistence.ManyToOne;
 import java.util.Date;
 
 @Entity
-@Getter
-@Setter
+@Data
 public class Sale {
 
     @Id
