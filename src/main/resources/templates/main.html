@@ -57,26 +57,24 @@
                 <td th:text="${smartphone.releaseYear}"/>
                 <td th:text="${smartphone.quantity}"/>
                 <td th:text="${smartphone.rating}"/>
-
                 <td>
                     <a th:href="@{/statistics/{id}(id=${smartphone.id})}"
                        class="btn-floating waves-effect waves-light red">
                         <i class="material-icons">assessment</i>
                     </a>
                 </td>
-
                 <td>
                     <div class="switch">
                         <label>
                             Off
-                            <input id="trackedCheckbox" type="checkbox" th:checked="${smartphone.isTracked}" th:onclick="'javascript:httpGet();'"/>
+                            <input th:id="'tracked' + ${smartphone.id}" th:type="checkbox"
+                                   th:checked="${smartphone.isTracked}"
+                                   th:onclick="'javascript:updateTracking(\''+ ${smartphone.id} +'\');'"/>
                             <span class="lever"/>
                             On
                         </label>
                     </div>
                 </td>
-
-
             </tr>
             </tbody>
         </table>
@@ -109,14 +107,11 @@
 
 <script>
 
-    function httpGet() {
-
-        alert(document.querySelector('.messageCheckbox:checked').value)
-//        alert('he')
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "/test", false); // false for synchronous request
-        xmlHttp.send(null);
-        return xmlHttp.responseText;
+    function updateTracking(id) {
+        var c = document.getElementById('tracked' + id).checked;
+        var req = new XMLHttpRequest();
+        req.open("PUT", "/" + id + "?isTracked=" + c, true);
+        req.send();
     }
 
     $(document).ready(function () {

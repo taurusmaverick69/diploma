@@ -3,16 +3,14 @@ package com.maverick.controller;
 import com.maverick.domain.Country;
 import com.maverick.domain.Sale;
 import com.maverick.domain.SeasonCoefficient;
+import com.maverick.domain.Smartphone;
 import com.maverick.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Year;
 import java.util.List;
@@ -21,6 +19,7 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 
 @Controller
+@RequestMapping("/smartphone")
 public class SmartphoneController {
 
     @Autowired
@@ -81,8 +80,11 @@ public class SmartphoneController {
         return "main";
     }
 
-    @GetMapping("/test")
-    public void test2() {
-        System.err.println("SmartphoneController.test2");
+    @PutMapping("/{id}")
+    @ResponseBody
+    public void updateTracking(@PathVariable Integer id, @RequestParam Boolean isTracked) {
+        Smartphone smartphone = smartphoneRepository.findOne(id);
+        smartphone.setIsTracked(isTracked);
+        smartphoneRepository.save(smartphone);
     }
 }
