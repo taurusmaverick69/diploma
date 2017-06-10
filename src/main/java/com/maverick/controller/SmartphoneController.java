@@ -19,12 +19,6 @@ public class SmartphoneController {
         return "main";
     }
 
-    @GetMapping("/statistics/{id}")
-    public String showStatistics(@PathVariable Integer id, Model model) {
-        // model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
-        return "statistics";
-    }
-
     @PutMapping("/{id}")
     @ResponseBody
     public void updateTracking(@PathVariable Integer id, @RequestParam Boolean isTracked) {

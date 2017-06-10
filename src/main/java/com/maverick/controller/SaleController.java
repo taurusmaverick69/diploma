@@ -1,22 +1,18 @@
 package com.maverick.controller;
 
-import com.maverick.domain.Sale;
-import com.maverick.repository.SaleRepository;
-import com.maverick.repository.SmartphoneRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.maverick.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Arrays;
 
-import static java.time.ZoneId.systemDefault;
+import static java.util.stream.Collectors.toList;
 
 @Controller
 @RequestMapping("/sale")
@@ -25,24 +21,10 @@ public class SaleController {
     @Autowired
     private SaleService saleService;
 
-    @Autowired
-    private SaleRepository saleRepository;
-
-    @Autowired
-    private SmartphoneRepository smartphoneRepository;
-
-
-    @GetMapping
-    @ResponseBody
-    public void test() {
-
-
-        List<Sale> sales = saleRepository.findBySmartphone(smartphoneRepository.findOne(1));
-        Map<Month, List<Sale>> collect = sales.stream().collect(Collectors.groupingBy(sale -> {
-            LocalDate localDate = sale.getDate().toInstant().atZone(systemDefault()).toLocalDate();
-            return Month.of(localDate.getMonthValue());
-        }));
-
-
+    @GetMapping("/{id}")
+    public String findBySmartphoneId(@PathVariable Integer id, Model model) throws JsonProcessingException {
+        model.addAttribute("months", Arrays.stream(Month.values()).map(Enum::toString).collect(toList()));
+        model.addAttribute("data",  saleService.findBySmartphoneId(id));
+        return "sales";
     }
 }
