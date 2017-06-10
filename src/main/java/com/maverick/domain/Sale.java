@@ -20,5 +20,5 @@ public class Sale {
     @ManyToOne
     private Smartphone smartphone;
     private Date date;
-    private Integer quantity;
+    private Integer clientId;
 }

@@ -1,6 +1,8 @@
 package com.maverick.controller;
 
+import com.maverick.domain.Country;
 import com.maverick.domain.Sale;
+import com.maverick.domain.SeasonCoefficient;
 import com.maverick.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.time.Year;
 import java.util.List;
@@ -45,7 +49,11 @@ public class SmartphoneController {
         model.addAttribute("smartphones", smartphoneRepository.findAll());
         //   model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
         List<Sale> bySmartphone = saleRepository.findBySmartphone(smartphoneRepository.findOne(1));
-        model.addAttribute("numbers", bySmartphone.stream().map(Sale::getQuantity).collect(toList()));
+//        model.addAttribute("numbers", bySmartphone.stream().map(Sale::getQuantity).collect(toList()));
+
+        model.addAttribute("coefficient", new SeasonCoefficient());
+        List<Country> all = countryRepository.findAll();
+        model.addAttribute("countries", all);
         return "main";
     }
 
@@ -65,5 +73,16 @@ public class SmartphoneController {
 //        List<SeasonCoefficient> all4 = seasonCoefficientRepository.findAll();
 //        List<Smartphone> all5 = smartphoneRepository.findAll();
         return new ResponseEntity<>(smartphoneRepository.findAll(), HttpStatus.OK);
+    }
+
+    @PostMapping("/coef")
+    public String save(@ModelAttribute SeasonCoefficient seasonCoefficient) {
+        System.out.println(seasonCoefficient);
+        return "main";
+    }
+
+    @GetMapping("/test")
+    public void test2() {
+        System.err.println("SmartphoneController.test2");
     }
 }

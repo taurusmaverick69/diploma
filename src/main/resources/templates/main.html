@@ -9,6 +9,7 @@
             min-height: 100vh;
             flex-direction: column;
         }
+
         main {
             flex: 1 0 auto;
         }
@@ -44,10 +45,11 @@
                 <th>Current Quantity</th>
                 <th>Rating</th>
                 <th>Statistics</th>
+                <th>Tracking</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="smartphone: ${smartphones}">
+            <tr th:each="smartphone:${smartphones}">
                 <!--/*@thymesVar id="smartphone" type="com.maverick.domain.Smartphone"*/-->
                 <!--/*@thymesVar id="brand" type="com.maverick.domain.Brand"*/-->
                 <td th:text="${smartphone.brand.brand}"/>
@@ -55,18 +57,76 @@
                 <td th:text="${smartphone.releaseYear}"/>
                 <td th:text="${smartphone.quantity}"/>
                 <td th:text="${smartphone.rating}"/>
+
                 <td>
                     <a th:href="@{/statistics/{id}(id=${smartphone.id})}"
                        class="btn-floating waves-effect waves-light red">
                         <i class="material-icons">assessment</i>
                     </a>
                 </td>
+
+                <td>
+                    <div class="switch">
+                        <label>
+                            Off
+                            <input id="trackedCheckbox" type="checkbox" th:checked="${smartphone.isTracked}" th:onclick="'javascript:httpGet();'"/>
+                            <span class="lever"/>
+                            On
+                        </label>
+                    </div>
+                </td>
+
+
             </tr>
             </tbody>
         </table>
 
+        <form action="#" th:action="@{/coef}" th:object="${coefficient}" method="post">
+            START DATE<input type="date" class="datepicker" th:field="*{startDate}"/>
+            END DATE <input type="date" class="datepicker" th:field="*{endDate}"/>
+
+            <!--<div class="input-field col s12">-->
+            <select th:field="*{country}">
+                <option value="" disabled="disabled" selected="selected">Choose your option</option>
+
+
+                <option th:each="country:${countries}" th:value="${country.id}" th:text="${country.country}"/>
+
+                <!--<option value="2">Option 2</option>-->
+                <!--<option value="3">Option 3</option>-->
+            </select>
+
+            <!--</div>-->
+
+            <!--<p>Message: <input type="number" th:field="*{coefficient4}" /></p>-->
+            <input type="submit" value="Submit"/>
+
+        </form>
+
+
     </div>
 </main>
+
+<script>
+
+    function httpGet() {
+
+        alert(document.querySelector('.messageCheckbox:checked').value)
+//        alert('he')
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "/test", false); // false for synchronous request
+        xmlHttp.send(null);
+        return xmlHttp.responseText;
+    }
+
+    $(document).ready(function () {
+        $('select').material_select();
+    });
+
+    $('.datepicker').pickadate({
+        selectMonths: true, // Creates a dropdown to control month
+    });
+</script>
 
 <footer class="page-footer">
     <div class="container">
