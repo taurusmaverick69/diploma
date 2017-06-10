@@ -1,58 +1,32 @@
 package com.maverick.controller;
 
-import com.maverick.domain.Country;
-import com.maverick.domain.Sale;
 import com.maverick.domain.SeasonCoefficient;
-import com.maverick.domain.Smartphone;
-import com.maverick.repository.*;
+import com.maverick.service.SmartphoneService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Year;
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static java.util.stream.Collectors.toList;
 
 @Controller
 @RequestMapping("/smartphone")
 public class SmartphoneController {
 
     @Autowired
-    private BrandRepository brandRepository;
+    private SmartphoneService smartphoneService;
 
-    @Autowired
-    private CountryRepository countryRepository;
+    @GetMapping
+    public String findAll(Model model) {
 
-    @Autowired
-    private DeliveryRepository deliveryRepository;
+//        List<Integer> years =
+//                IntStream.rangeClosed(1996, Year.now().getValue()).boxed().collect(toList());
 
-    @Autowired
-    private SaleRepository saleRepository;
-
-    @Autowired
-    private SeasonCoefficientRepository seasonCoefficientRepository;
-
-    @Autowired
-    private SmartphoneRepository smartphoneRepository;
-
-    @GetMapping("/main")
-    public String main(Model model) {
-
-        List<Integer> years =
-                IntStream.rangeClosed(1996, Year.now().getValue()).boxed().collect(toList());
-        model.addAttribute("smartphones", smartphoneRepository.findAll());
-        //   model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
-        List<Sale> bySmartphone = saleRepository.findBySmartphone(smartphoneRepository.findOne(1));
-//        model.addAttribute("numbers", bySmartphone.stream().map(Sale::getQuantity).collect(toList()));
-
-        model.addAttribute("coefficient", new SeasonCoefficient());
-        List<Country> all = countryRepository.findAll();
-        model.addAttribute("countries", all);
+//        //   model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
+//        List<Sale> bySmartphone = saleRepository.findBySmartphone(smartphoneRepository.findOne(1));
+////        model.addAttribute("numbers", bySmartphone.stream().map(Sale::getQuantity).collect(toList()));
+//        model.addAttribute("coefficient", new SeasonCoefficient());
+//        List<Country> all = countryRepository.findAll();
+//        model.addAttribute("countries", all);
+        model.addAttribute("smartphones", smartphoneService.findAll());
         return "main";
     }
 
@@ -60,18 +34,6 @@ public class SmartphoneController {
     public String showStatistics(@PathVariable Integer id, Model model) {
         // model.addAttribute("seasons", Arrays.stream(Season.values()).map(Enum::toString).collect(toList()));
         return "statistics";
-    }
-
-    @GetMapping("/testAll")
-    public ResponseEntity test() {
-
-//        List<Brand> all = brandRepository.findAll();
-//        List<Country> all1 = countryRepository.findAll();
-//        List<Delivery> all2 = deliveryRepository.findAll();
-//        List<Sale> all3 = saleRepository.findAll();
-//        List<SeasonCoefficient> all4 = seasonCoefficientRepository.findAll();
-//        List<Smartphone> all5 = smartphoneRepository.findAll();
-        return new ResponseEntity<>(smartphoneRepository.findAll(), HttpStatus.OK);
     }
 
     @PostMapping("/coef")
@@ -83,8 +45,6 @@ public class SmartphoneController {
     @PutMapping("/{id}")
     @ResponseBody
     public void updateTracking(@PathVariable Integer id, @RequestParam Boolean isTracked) {
-        Smartphone smartphone = smartphoneRepository.findOne(id);
-        smartphone.setIsTracked(isTracked);
-        smartphoneRepository.save(smartphone);
+        smartphoneService.updateTracking(id, isTracked);
     }
 }
