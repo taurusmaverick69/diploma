@@ -30,4 +30,5 @@ public class SaleController {
         model.addAttribute("data", saleService.findDataBySmartphoneId(id));
         return "sales";
     }
+
 }

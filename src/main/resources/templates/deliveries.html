@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title>Main Page</title>
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+    </style>
+    <!--Import Google Icon Font-->
+    <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons"/>
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="/webjars/materializecss/0.98.2/css/materialize.min.css"/>
+    <!--Import jQuery before materialize.js-->
+    <script src="/webjars/jquery/3.1.1/jquery.min.js"></script>
+    <script src="/webjars/materializecss/0.98.2/js/materialize.min.js"></script>
+</head>
+<body>
+
+<header>
+    <ul id="dropdown1" class="dropdown-content">
+        <li><a href="/coefficient">Coefficients</a></li>
+        <li class="divider"></li>
+        <li><a href="/logout"><i class="material-icons right">exit_to_app</i>Logout</a></li>
+    </ul>
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo left">Deliveries</a>
+            <ul class="right">
+                <li>
+                    <a class="dropdown-button" href="#!" data-activates="dropdown1">
+                        Logged as <span sec:authentication="name"/>
+                        <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+</header>
+<main>
+    <div class="container">
+
+
+        <h3 th:text="'Forecast on ' + ${nextSeason} + ' ' + ${#dates.year(#dates.createNow())}"></h3>
+
+        <table class="">
+            <thead>
+            <tr>
+                <th>Smartphone</th>
+                <th>Last delivery</th>
+                <th>Projected quantity</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="delivery:${deliveries}">
+                <!--/*@thymesVar id="delivery" type="com.maverick.domain.Delivery"*/-->
+                <td th:text="${delivery.smartphone.brand.brand} + ' ' + ${delivery.smartphone.model}"/>
+                <td th:text="${#dates.format(delivery.date, 'dd.MM.yyy')}"/>
+                <td th:text="${delivery.quantity}"/>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large" href="#modal">
+            <i class="large material-icons">save</i>
+        </a>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h4>Save?</h4>
+            <p>Are you sure want to save deliveries?</p>
+        </div>
+        <div class="modal-footer">
+            <a class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
+            <a href="/smartphone" class="modal-action waves-effect waves-green btn-flat" th:onclick="'javascript:save();'">Save</a>
+
+        </div>
+    </div>
+</main>
+<div th:replace="fragments/footer :: footer"/>
+
+<script th:inline="javascript">
+
+    function save() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/delivery", true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        xhr.send(JSON.stringify([[${deliveries}]]));
+    }
+
+    $(document).ready(function () {
+        // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+        $('.modal').modal();
+    });
+</script>
+</body>
+</html>

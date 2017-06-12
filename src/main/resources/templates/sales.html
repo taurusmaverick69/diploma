@@ -3,6 +3,18 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <title>Statistic</title>
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+    </style>
+
     <script src="/webjars/jquery/3.1.1/jquery.min.js"></script>
 
     <link href="/webjars/bootstrap/4.0.0-alpha.6-1/css/bootstrap.min.css" rel="stylesheet"/>
@@ -12,23 +24,16 @@
     <script src="/js/mdb.min.js"></script>
     <script src="/js/tether.min.js"></script>
 
-    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <!--Import Google Icon Font-->
+    <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons"/>
+    <!--Import materialize.css-->
     <link rel="stylesheet" href="/webjars/materializecss/0.98.2/css/materialize.min.css"/>
+    <!--Import jQuery before materialize.js-->
+    <script src="/webjars/jquery/3.1.1/jquery.min.js"></script>
     <script src="/webjars/materializecss/0.98.2/js/materialize.min.js"></script>
-
 </head>
-<style>
-    body {
-        display: flex;
-        min-height: 100vh;
-        flex-direction: column;
-    }
-
-    main {
-        flex: 1 0 auto;
-    }
-</style>
 <body>
+
 <header>
     <nav>
         <div class="nav-wrapper">
@@ -41,11 +46,8 @@
     </nav>
 </header>
 <main>
-
     <div class="container">
-
         <h3 th:text="${smartphone}"></h3>
-
         <div class="row">
             <div class="input-field col s12 m4 l5">
                 <select id="year">
@@ -64,14 +66,11 @@
                 <a class="waves-effect waves-light btn" th:onclick="'javascript:buildChart();'">Build</a>
             </div>
         </div>
-
-
         <canvas id="myChart"></canvas>
-
     </div>
-
-
 </main>
+<div th:replace="fragments/footer :: footer"/>
+
 <script th:inline="javascript">
 
     function buildChart() {
@@ -110,32 +109,5 @@
 
 
 </script>
-<footer class="page-footer">
-    <div class="container">
-        <div class="row">
-            <div class="col l6 s12">
-                <h5 class="white-text">Footer Content</h5>
-                <p class="grey-text text-lighten-4">You can use rows and columns here to organize your footer
-                    content.</p>
-            </div>
-            <!--<div class="col l4 offset-l2 s12">-->
-            <!--<h5 class="white-text">Links</h5>-->
-            <!--<ul>-->
-            <!--<li><a class="grey-text text-lighten-3" href="#!">Link 1</a></li>-->
-            <!--<li><a class="grey-text text-lighten-3" href="#!">Link 2</a></li>-->
-            <!--<li><a class="grey-text text-lighten-3" href="#!">Link 3</a></li>-->
-            <!--<li><a class="grey-text text-lighten-3" href="#!">Link 4</a></li>-->
-            <!--</ul>-->
-            <!--</div>-->
-        </div>
-    </div>
-
-    <div class="footer-copyright">
-        <div class="container center-align">
-            © 2017 Vladislav Lyubimtsev, KNURE DIPLOMA, ALL RIGHTS RESERVED
-            <!--<a class="grey-text text-lighten-4 right" href="#!">More Links</a>-->
-        </div>
-    </div>
-</footer>
 </body>
 </html>

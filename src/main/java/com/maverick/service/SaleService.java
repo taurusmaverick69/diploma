@@ -76,6 +76,5 @@ public class SaleService {
         ranges.put(DataType.MONTHS.getType(), months);
         ranges.put(DataType.SEASONS.getType(), seasons);
         return ranges;
-
     }
 }
