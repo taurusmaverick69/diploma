@@ -90,28 +90,19 @@
         </table>
     </div>
 
-    <p th:text="${isTimeToDelivery}"></p>
-
     <div class="fixed-action-btn">
-        <a id="menu" class="btn-floating btn-large cyan" th:disabled="!${isTimeToDelivery}"><i class="material-icons">local_shipping</i></a>
+        <a id="menu" class="btn-floating btn-large cyan"><i class="material-icons">local_shipping</i></a>
     </div>
-
 
     <div class="tap-target cyan" data-activates="menu">
         <div class="tap-target-content white-text">
-            <h5>Title</h5>
-            <p>A bunch of text</p>
+            <h5>Attention</h5>
+            <p>Some smartphone stocks need to be updated</p>
         </div>
     </div>
 </main>
 <div th:replace="fragments/footer :: footer"/>
 <script th:inline="javascript">
-
-    function square(x) {
-        return x * x;
-    }
-
-    console.log(square(2));
 
     function updateTracking(id) {
         var c = document.getElementById('tracked' + id).checked;
@@ -122,10 +113,8 @@
 
     $(document).ready(function () {
 
-
-        if ([[${isDelivery}]])
+//        if ([[${isTimeToDelivery}]])
             $('.tap-target').tapTarget('open');
-
 
         $(".dropdown-button").dropdown(
             {

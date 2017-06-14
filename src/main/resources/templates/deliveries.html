@@ -48,25 +48,62 @@
 <main>
     <div class="container">
 
+        <!--<h3 th:text="'Forecast on ' + ${nextSeason} + ' ' + ${#dates.year(#dates.createNow())}"></h3>-->
 
-        <h3 th:text="'Forecast on ' + ${nextSeason} + ' ' + ${#dates.year(#dates.createNow())}"></h3>
+        <h3>Forecast for the rest of the season</h3>
 
         <table class="">
+            <!--<thead>-->
+            <!--<tr>-->
+                <!--<th>Smartphone</th>-->
+                <!--<th>Last delivery</th>-->
+                <!--<th>Bought as start</th>-->
+                <!--<th>Sold</th>-->
+                <!--<th>Projected quantity</th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+            <!--<tbody>-->
+            <!--<tr th:each="delivery:${deliveries}">-->
+                <!--&lt;!&ndash;/*@thymesVar id="delivery" type="com.maverick.domain.Delivery"*/&ndash;&gt;-->
+                <!--<td th:text="${delivery.smartphone.brand.brand} + ' ' + ${delivery.smartphone.model}"/>-->
+                <!--<td th:text="${#dates.format(delivery.date, 'dd.MM.yyy')}"/>-->
+                <!--<td th:text="${delivery.bought}"/>-->
+                <!--<td th:text="${delivery.sold}"/>-->
+                <!--<td th:text="${delivery.quantity}"/>-->
+            <!--</tr>-->
+            <!--</tbody>-->
+
             <thead>
             <tr>
                 <th>Smartphone</th>
                 <th>Last delivery</th>
+                <th>Sold</th>
+                <th>Current day</th>
+                <th>Speed of sales</th>
                 <th>Projected quantity</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="delivery:${deliveries}">
-                <!--/*@thymesVar id="delivery" type="com.maverick.domain.Delivery"*/-->
-                <td th:text="${delivery.smartphone.brand.brand} + ' ' + ${delivery.smartphone.model}"/>
-                <td th:text="${#dates.format(delivery.date, 'dd.MM.yyy')}"/>
-                <td th:text="${delivery.quantity}"/>
+
+            <tr>
+                <td>Google Nexus 6P</td>
+                <td>26.02.2017</td>
+                <td>1500</td>
+                <td>20</td>
+                <td>75</td>
+                <td>5250</td>
             </tr>
+
+            <!--<tr th:each="delivery:${deliveries}">-->
+                <!--&lt;!&ndash;/*@thymesVar id="delivery" type="com.maverick.domain.Delivery"*/&ndash;&gt;-->
+                <!--<td th:text="${delivery.smartphone.brand.brand} + ' ' + ${delivery.smartphone.model}"/>-->
+                <!--<td th:text="${#dates.format(delivery.date, 'dd.MM.yyy')}"/>-->
+                <!--<td th:text="${delivery.bought}"/>-->
+                <!--<td th:text="${delivery.sold}"/>-->
+                <!--<td th:text="${delivery.quantity}"/>-->
+            <!--</tr>-->
             </tbody>
+
         </table>
     </div>
 

@@ -38,9 +38,10 @@ public class DeliveryService {
                     Delivery lastDelivery = deliveryRepository.findFirstBySmartphoneOrderByDateDesc(smartphone);
                     Integer lastQuantity = lastDelivery.getQuantity();
                     Date dateOfLastDelivery = lastDelivery.getDate();
+                    delivery.setBought(lastQuantity);
                     Integer sold = saleRepository.countBySmartphoneAndDateBetween(smartphone, dateOfLastDelivery, new Date());
+                    delivery.setSold(sold);
                     int toBuy = sold - (lastQuantity - sold);
-
 
                     delivery.setQuantity(toBuy);
                     delivery.setDate(dateOfLastDelivery);
