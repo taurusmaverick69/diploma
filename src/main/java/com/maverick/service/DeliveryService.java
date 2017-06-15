@@ -1,6 +1,7 @@
 package com.maverick.service;
 
 import com.maverick.domain.Delivery;
+import com.maverick.domain.Smartphone;
 import com.maverick.repository.DeliveryRepository;
 import com.maverick.repository.SaleRepository;
 import com.maverick.repository.SmartphoneRepository;
@@ -54,13 +55,12 @@ public class DeliveryService {
         deliveryRepository.save(deliveries);
     }
 
-//    private Integer calculateOnNextSeason(Smartphone smartphone) {
-//        Delivery lastDelivery = deliveryRepository.findFirstBySmartphoneOrderByDateDesc(smartphone);
-//        Integer lastQuantity = lastDelivery.getQuantity();
-//        Date dateOfLastDelivery = lastDelivery.getDate();
-//        Integer sold = saleRepository.countBySmartphoneAndDateBetween(smartphone, dateOfLastDelivery, new Date());
-//        int toBuy = sold - (lastQuantity - sold);
-//        // TODO: 01.06.2017 RATING, SEASON
-//        return toBuy;
-//    }
+    private Integer calculateOnNextSeason(Smartphone smartphone) {
+        Delivery lastDelivery = deliveryRepository.findFirstBySmartphoneOrderByDateDesc(smartphone);
+        Integer lastQuantity = lastDelivery.getQuantity();
+        Date dateOfLastDelivery = lastDelivery.getDate();
+        Integer sold = saleRepository.countBySmartphoneAndDateBetween(smartphone, dateOfLastDelivery, new Date());
+        int toBuy = sold - (lastQuantity - sold) * raiting * season;
+        return toBuy;
+    }
 }
