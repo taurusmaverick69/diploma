@@ -1,7 +1,6 @@
 package com.maverick.controller;
 
 import com.maverick.domain.SeasonCoefficient;
-import com.maverick.service.CountryService;
 import com.maverick.service.SeasonCoefficientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,13 +17,13 @@ public class SeasonCoefficientController {
     @Autowired
     private SeasonCoefficientService seasonCoefficientService;
 
-    @Autowired
-    private CountryService countryService;
+//    @Autowired
+//    private CountryService countryService;
 
     @GetMapping
     public String findAll(Model model) {
         model.addAttribute("coefficients", seasonCoefficientService.findAll());
-        model.addAttribute("countries", countryService.findAll());
+//        model.addAttribute("countries", countryService.findAll());
         model.addAttribute("coefficient", new SeasonCoefficient());
         return "coefficients";
     }

@@ -1,6 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Main Page</title>
     <style>
@@ -31,7 +30,7 @@
             <ul class="right">
                 <li>
                     <a class="dropdown-button" href="#!" data-activates="dropdown">
-                        Logged as <span sec:authentication="name"/>
+                        Logged as <span sec:authentication="name"></span>
                         <i class="material-icons right">arrow_drop_down</i>
                     </a>
                 </li>
@@ -114,7 +113,7 @@
     $(document).ready(function () {
 
 //        if ([[${isTimeToDelivery}]])
-            $('.tap-target').tapTarget('open');
+        $('.tap-target').tapTarget('open');
 
         $(".dropdown-button").dropdown(
             {

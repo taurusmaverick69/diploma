@@ -1,22 +1,21 @@
 package com.maverick.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import java.util.Date;
+import java.time.LocalDate;
 
-@Entity
 @Data
+@EqualsAndHashCode(of = "id")
+@Document
 public class Sale {
 
     @Id
-    @GeneratedValue
-    private Integer id;
-    @ManyToOne
+    private ObjectId id;
     private Smartphone smartphone;
-    private Date date;
+    private LocalDate date;
     private Integer clientId;
 }

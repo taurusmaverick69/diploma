@@ -2,16 +2,17 @@ package com.maverick.repository;
 
 import com.maverick.domain.Sale;
 import com.maverick.domain.Smartphone;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
-public interface SaleRepository extends JpaRepository<Sale, Integer> {
+public interface SaleRepository extends MongoRepository<Sale, ObjectId> {
 
     List<Sale> findBySmartphone(Smartphone smartphone);
 
-    Integer countBySmartphoneAndDateBetween(Smartphone smartphone,  Date startDate, Date endDate);
+    Integer countBySmartphoneAndDateBetween(Smartphone smartphone, LocalDate startDate, LocalDate endDate);
 
 
 }

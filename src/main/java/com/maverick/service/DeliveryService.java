@@ -7,11 +7,11 @@ import com.maverick.repository.SaleRepository;
 import com.maverick.repository.SmartphoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliveryService {
@@ -38,29 +38,30 @@ public class DeliveryService {
 
                     Delivery lastDelivery = deliveryRepository.findFirstBySmartphoneOrderByDateDesc(smartphone);
                     Integer lastQuantity = lastDelivery.getQuantity();
-                    Date dateOfLastDelivery = lastDelivery.getDate();
+                    LocalDate dateOfLastDelivery = lastDelivery.getDate();
                     delivery.setBought(lastQuantity);
-                    Integer sold = saleRepository.countBySmartphoneAndDateBetween(smartphone, dateOfLastDelivery, new Date());
+                    Integer sold = saleRepository.countBySmartphoneAndDateBetween(smartphone, dateOfLastDelivery, LocalDate.now());
                     delivery.setSold(sold);
                     int toBuy = sold - (lastQuantity - sold);
 
                     delivery.setQuantity(toBuy);
                     delivery.setDate(dateOfLastDelivery);
                     return delivery;
-                }).collect(toList());
+                }).collect(Collectors.toList());
     }
 
     public void save(List<Delivery> deliveries) {
-        deliveries.forEach(delivery -> delivery.setDate(new Date()));
-        deliveryRepository.save(deliveries);
+        deliveries.forEach(delivery -> delivery.setDate(LocalDate.now()));
+        deliveryRepository.saveAll(deliveries);
     }
 
     private Integer calculateOnNextSeason(Smartphone smartphone) {
         Delivery lastDelivery = deliveryRepository.findFirstBySmartphoneOrderByDateDesc(smartphone);
         Integer lastQuantity = lastDelivery.getQuantity();
-        Date dateOfLastDelivery = lastDelivery.getDate();
-        Integer sold = saleRepository.countBySmartphoneAndDateBetween(smartphone, dateOfLastDelivery, new Date());
-        int toBuy = sold - (lastQuantity - sold) * raiting * season;
-        return toBuy;
+        LocalDate dateOfLastDelivery = lastDelivery.getDate();
+        Integer sold = saleRepository.countBySmartphoneAndDateBetween(smartphone, dateOfLastDelivery, LocalDate.now());
+//        int toBuy = sold - (lastQuantity - sold) * raiting * season;
+//        return toBuy;
+        return 0;
     }
 }

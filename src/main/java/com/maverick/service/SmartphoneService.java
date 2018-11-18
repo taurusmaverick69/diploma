@@ -2,6 +2,7 @@ package com.maverick.service;
 
 import com.maverick.domain.Smartphone;
 import com.maverick.repository.SmartphoneRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static java.time.Month.*;
@@ -27,18 +29,20 @@ public class SmartphoneService {
         return smartphoneRepository.findAll();
     }
 
-    public Smartphone findById(Integer id) {
-        return smartphoneRepository.findOne(id);
+    public Optional<Smartphone> findById(ObjectId id) {
+        return smartphoneRepository.findById(id);
     }
 
-    public void updateTracking(Integer id, Boolean isTracked) {
-        Smartphone smartphone = smartphoneRepository.findOne(id);
-        smartphone.setIsTracked(isTracked);
-        smartphoneRepository.save(smartphone);
+    public void updateTracking(ObjectId id, Boolean isTracked) {
+        smartphoneRepository.findById(id).ifPresent(s -> {
+            s.setIsTracked(isTracked);
+            smartphoneRepository.save(s);
+        });
+
     }
 
-    public List<Integer> findYears(Integer id) {
-        return IntStream.rangeClosed(smartphoneRepository.findOne(id).getReleaseYear(), Year.now().getValue()).boxed().collect(toList());
+    public List<Integer> findYears(ObjectId id) {
+        return IntStream.rangeClosed(smartphoneRepository.findById(id).get().getReleaseYear(), Year.now().getValue()).boxed().collect(toList());
     }
 
     public Boolean isTimeToDelivery() {

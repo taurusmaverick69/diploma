@@ -2,12 +2,10 @@ package com.maverick.repository;
 
 import com.maverick.domain.Delivery;
 import com.maverick.domain.Smartphone;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Date;
-import java.util.List;
-
-public interface DeliveryRepository extends JpaRepository<Delivery, Integer> {
+public interface DeliveryRepository extends MongoRepository<Delivery, ObjectId> {
 
     Delivery findFirstBySmartphoneOrderByDateDesc(Smartphone smartphone);
 
