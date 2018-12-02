@@ -1,6 +1,7 @@
 package com.maverick.controller;
 
 import com.maverick.domain.Smartphone;
+import com.maverick.repository.SmartphoneRepository;
 import com.maverick.service.SmartphoneService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,18 @@ public class SmartphoneController {
     @Autowired
     private SmartphoneService smartphoneService;
 
+    @Autowired
+    private SmartphoneRepository smartphoneRepository;
+
+
+
     @GetMapping
     public String findAll(Model model) {
-        model.addAttribute("smartphones", smartphoneService.findAll());
-        model.addAttribute("isTimeToDelivery", smartphoneService.isTimeToDelivery());
+        Smartphone entity = new Smartphone();
+        entity.setBrand("TESTB");
+        smartphoneRepository.insert(entity);
+//        model.addAttribute("smartphones", smartphoneService.findAll());
+//        model.addAttribute("isTimeToDelivery", smartphoneService.isTimeToDelivery());
         return "main";
     }
 
