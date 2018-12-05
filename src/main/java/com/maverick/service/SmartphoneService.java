@@ -5,15 +5,13 @@ import com.maverick.repository.SmartphoneRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.threeten.extra.YearQuarter;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.time.Month.*;
@@ -51,5 +49,38 @@ public class SmartphoneService {
         Month currentMonth = currentLocalDate.getMonth();
         int currentDayOfMonth = currentLocalDate.getDayOfMonth();
         return lastMonthsOfSeason.contains(currentMonth) && currentMonth.maxLength() == currentDayOfMonth;
+    }
+
+    public static void main(String[] args) {
+
+        Map<YearQuarter, Map<String, Integer>> map = Map.of(
+                YearQuarter.of(2017, 1), Map.of(
+                        "Samsung", 786714000,
+                        "Apple", 519925000,
+                        "Huawei", 341812000,
+                        "Oppo", 309223000,
+                        "Vivo" , 258422000),
+                YearQuarter.of(2017, 2), Map.of(
+                        "Samsung", 825351000,
+                        "Apple", 443148000,
+                        "Huawei", 359643000,
+                        "Oppo", 260925000,
+                        "Vivo" , 243246000
+                ),
+                YearQuarter.of(2017, 3), Map.of(
+                        "Samsung", 856053000,
+                        "Apple", 454419000,
+                        "Huawei", 365018000,
+                        "Oppo", 294492000,
+                        "Xiaomi" , 268532000
+                ),
+                YearQuarter.of(2017, 4), Map.of(
+                        "Samsung", 740266000,
+                        "Apple", 731752000,
+                        "Huawei", 438870000,
+                        "Xiaomi" , 281878000,
+                        "Oppo", 256601000
+                ));
+
     }
 }

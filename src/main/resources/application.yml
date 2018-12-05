@@ -1,6 +1,0 @@
-spring:
-  security:
-    user:
-      name: admin@gmail.com
-      password: admin
-      roles: trest,test;

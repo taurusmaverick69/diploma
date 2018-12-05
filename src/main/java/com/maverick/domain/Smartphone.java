@@ -7,12 +7,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "brand")
 @Document
 public class Smartphone {
 
     @Id
-    private ObjectId id;
     private String brand;
     private String model;
     private Double price;
