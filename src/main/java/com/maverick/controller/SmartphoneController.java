@@ -1,14 +1,21 @@
 package com.maverick.controller;
 
 import com.maverick.domain.Smartphone;
+import com.maverick.domain.TestDto;
 import com.maverick.service.SmartphoneService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/smartphone")
@@ -17,8 +24,40 @@ public class SmartphoneController {
     @Autowired
     private SmartphoneService smartphoneService;
 
+    @Autowired
+    private RestTemplate deviceAtlasRestTemplate;
+
     @GetMapping
     public String findAll(Model model) {
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("traffic", "no-tablet");
+        params.add("period", "");
+        params.add("country", "by");
+        params.add("val", "Apple+iPhone+7+Plus");
+        params.add("type", "device_marketing");
+
+        String uri = UriComponentsBuilder
+                .fromPath("/device-data/explorer/ajax/map-data-public")
+                .queryParams(params).build().toUriString();
+
+
+//        traffic=no-tablet
+//        &
+//        period=
+//        &
+//        country=by
+//        &
+//        val=Apple+iPhone+7+Plus
+//        &
+//        type=device_marketing
+//       &
+//       _=1543319407169
+
+        TestDto dto = deviceAtlasRestTemplate.getForObject(uri, TestDto.class);
+
+        dto.getData().stream().mapToDouble(strings -> Double.valueOf(strings.get(2))).sum();
+
         model.addAttribute("smartphones", smartphoneService.findAll());
         model.addAttribute("isTimeToDelivery", smartphoneService.isTimeToDelivery());
         return "main";
