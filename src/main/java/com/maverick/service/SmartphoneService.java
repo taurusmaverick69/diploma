@@ -59,7 +59,8 @@ public class SmartphoneService {
                         "Apple", 519925000,
                         "Huawei", 341812000,
                         "Oppo", 309223000,
-                        "Vivo" , 258422000),
+                        "Vivo" , 258422000
+                ),
                 YearQuarter.of(2017, 2), Map.of(
                         "Samsung", 825351000,
                         "Apple", 443148000,
