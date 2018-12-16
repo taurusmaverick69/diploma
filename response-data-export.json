@@ -1,0 +1,102 @@
+[
+  {
+    "device_model": "Apple iPhone 7",
+    "popularity": "4.4524",
+    "rank": "1"
+  },
+  {
+    "device_model": "Xiaomi Redmi 4X",
+    "popularity": "4.1612",
+    "rank": "2"
+  },
+  {
+    "device_model": "Apple iPhone 6",
+    "popularity": "2.9515",
+    "rank": "3"
+  },
+  {
+    "device_model": "Apple iPhone 6S",
+    "popularity": "2.9415",
+    "rank": "4"
+  },
+  {
+    "device_model": "Samsung SM-J320H",
+    "popularity": "2.7457",
+    "rank": "5"
+  },
+  {
+    "device_model": "Xiaomi Redmi Note 4",
+    "popularity": "2.3843",
+    "rank": "6"
+  },
+  {
+    "device_model": "Apple iPhone 7 Plus",
+    "popularity": "2.2387",
+    "rank": "7"
+  },
+  {
+    "device_model": "Samsung SM-J500H",
+    "popularity": "2.1434",
+    "rank": "8"
+  },
+  {
+    "device_model": "Samsung SM-J710F",
+    "popularity": "1.9275",
+    "rank": "9"
+  },
+  {
+    "device_model": "Samsung SM-J510H",
+    "popularity": "1.8422",
+    "rank": "10"
+  },
+  {
+    "device_model": "Apple iPhone 5S",
+    "popularity": "1.7518",
+    "rank": "11"
+  },
+  {
+    "device_model": "Xiaomi Redmi 4A",
+    "popularity": "1.7468",
+    "rank": "12"
+  },
+  {
+    "device_model": "Xiaomi Redmi Note 5",
+    "popularity": "1.6615",
+    "rank": "13"
+  },
+  {
+    "device_model": "Samsung SM-J700H",
+    "popularity": "1.6314",
+    "rank": "14"
+  },
+  {
+    "device_model": "Samsung SM-J120H",
+    "popularity": "1.4356",
+    "rank": "15"
+  },
+  {
+    "device_model": "Generic Android Mobile",
+    "popularity": "1.4005",
+    "rank": "16"
+  },
+  {
+    "device_model": "Apple iPhone X",
+    "popularity": "1.2549",
+    "rank": "17"
+  },
+  {
+    "device_model": "Samsung SM-E500H",
+    "popularity": "1.0792",
+    "rank": "18"
+  },
+  {
+    "device_model": "Xiaomi Redmi 4",
+    "popularity": "1.0642",
+    "rank": "19"
+  },
+  {
+    "device_model": "Huawei TIT-U02",
+    "popularity": "1.0491",
+    "rank": "20"
+  }
+]

@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
+import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/smartphone")
@@ -29,7 +28,6 @@ public class SmartphoneController {
 
     @GetMapping
     public String findAll(Model model) {
-
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("traffic", "no-tablet");
         params.add("period", "");
@@ -40,19 +38,6 @@ public class SmartphoneController {
         String uri = UriComponentsBuilder
                 .fromPath("/device-data/explorer/ajax/map-data-public")
                 .queryParams(params).build().toUriString();
-
-
-//        traffic=no-tablet
-//        &
-//        period=
-//        &
-//        country=by
-//        &
-//        val=Apple+iPhone+7+Plus
-//        &
-//        type=device_marketing
-//       &
-//       _=1543319407169
 
         TestDto dto = deviceAtlasRestTemplate.getForObject(uri, TestDto.class);
 
@@ -75,5 +60,10 @@ public class SmartphoneController {
         System.out.println(all);
         model.addAttribute("smartphones", all);
         return "test";
+    }
+
+    @PostMapping("/reset")
+    public void resetData() throws IOException {
+        smartphoneService.resetData();
     }
 }

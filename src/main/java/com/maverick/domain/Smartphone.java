@@ -6,12 +6,15 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Data
-@EqualsAndHashCode(of = "brand")
+@EqualsAndHashCode(of = {"brand", "model"})
 @Document
 public class Smartphone {
 
     @Id
+    private ObjectId id;
     private String brand;
     private String model;
     private Double price;
@@ -19,5 +22,8 @@ public class Smartphone {
     private Double rating;
     private Integer quantity;
     private Boolean isTracked;
+
+    private List<Sale> expectedSales;
+    private List<Sale> actualSales;
 
 }

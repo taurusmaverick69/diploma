@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.threeten.extra.YearQuarter;
 
 import java.time.LocalDate;
 
@@ -18,4 +19,7 @@ public class Sale {
     private Smartphone smartphone;
     private LocalDate date;
     private Integer clientId;
+
+    private YearQuarter yearQuarter;
+    private int quantity;
 }
