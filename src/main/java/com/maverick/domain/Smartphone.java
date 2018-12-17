@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.SortedSet;
 
 @Data
 @EqualsAndHashCode(of = {"brand", "model"})
@@ -23,7 +24,7 @@ public class Smartphone {
     private Integer quantity;
     private Boolean isTracked;
 
-    private List<Sale> expectedSales;
-    private List<Sale> actualSales;
+    private SortedSet<Sale> expectedSales;
+    private SortedSet<Sale> actualSales;
 
 }

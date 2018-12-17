@@ -129,13 +129,13 @@ public class SmartphoneService {
             smartphone.setBrand(brand);
             smartphone.setModel(model);
 
-            List<Sale> expectedSales = yearQuarterSumQuantityMap.entrySet().stream().map(yearQuarterSumQuantity -> {
+            SortedSet<Sale> expectedSales = yearQuarterSumQuantityMap.entrySet().stream().map(yearQuarterSumQuantity -> {
                 Sale sale = new Sale();
                 sale.setYearQuarter(yearQuarterSumQuantity.getKey());
                 int regionQuantity = Math.round(yearQuarterSumQuantity.getValue() * popularity);
                 sale.setQuantity(regionQuantity);
                 return sale;
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toCollection(TreeSet::new));
 
             smartphone.setExpectedSales(expectedSales);
             return smartphone;

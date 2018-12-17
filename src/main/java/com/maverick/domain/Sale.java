@@ -1,25 +1,19 @@
 package com.maverick.domain;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.threeten.extra.YearQuarter;
 
 import java.time.LocalDate;
 
 @Data
-@EqualsAndHashCode(of = "id")
-@Document
-public class Sale {
+public class Sale implements Comparable<Sale> {
 
-    @Id
-    private ObjectId id;
-    private Smartphone smartphone;
-    private LocalDate date;
-    private Integer clientId;
+        private LocalDate date;
+        private YearQuarter yearQuarter;
+        private int quantity;
 
-    private YearQuarter yearQuarter;
-    private int quantity;
+        @Override
+        public int compareTo(Sale o) {
+            return yearQuarter.compareTo(o.getYearQuarter());
+        }
 }

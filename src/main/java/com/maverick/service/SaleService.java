@@ -2,7 +2,6 @@ package com.maverick.service;
 
 import com.maverick.domain.enums.DataType;
 import com.maverick.domain.enums.Season;
-import com.maverick.repository.SaleRepository;
 import com.maverick.repository.SmartphoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,9 +15,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class SaleService {
-
-    @Autowired
-    private SaleRepository saleRepository;
 
     @Autowired
     private SmartphoneRepository smartphoneRepository;
