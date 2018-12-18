@@ -8,19 +8,22 @@ import com.maverick.repository.SmartphoneRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Service;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.ICsvListReader;
+import org.supercsv.prefs.CsvPreference;
+import org.threeten.extra.LocalDateRange;
 import org.threeten.extra.YearQuarter;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.Year;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.time.Month.*;
 
@@ -64,7 +67,7 @@ public class SmartphoneService {
     public void resetData() throws IOException {
 
         int uaPercent = 20;
-        int uaPercentage = 100/uaPercent;
+        int uaPercentage = 100 / uaPercent;
 
         Map<YearQuarter, Map<String, Integer>> smartphoneMap = Map.of(
                 YearQuarter.of(2017, 1),
@@ -143,5 +146,84 @@ public class SmartphoneService {
 
         smartphoneRepository.deleteAll();
         smartphoneRepository.insert(smartphones);
+    }
+
+    public static void main(String[] args) {
+
+        List<List<String>> data = new ArrayList<>();
+        try (ICsvListReader listReader = new CsvListReader(new FileReader("response-data-export.csv"), CsvPreference.STANDARD_PREFERENCE)) {
+            String[] header = listReader.getHeader(true);
+//            final CellProcessor[] processors = getProcessors();
+            List<String> salesList;
+            while ((salesList = listReader.read()) != null) {
+                data.add(salesList);
+            }
+
+            Map<YearMonth, Map<String, Float>> yearMonthSmartphoneShare = data.stream().collect(Collectors.toMap(
+                    dataItem -> YearMonth.parse(dataItem.get(0)),
+                    dataItem -> dataItem.stream().skip(1).collect(Collectors.toMap(
+                            o -> header[dataItem.indexOf(o)],
+                            Float::valueOf))));
+
+
+            Map<YearQuarter, Map<String, Integer>> smartphoneMap = Map.of(
+                    YearQuarter.of(2017, 1),
+                    Map.of(
+                            "Samsung", 786714000,
+                            "Apple", 519925000,
+                            "Xiaomi", 127073000
+                    ),
+                    YearQuarter.of(2017, 2),
+                    Map.of(
+                            "Samsung", 825351000,
+                            "Apple", 443148000,
+                            "Xiaomi", 241785000
+                    ),
+                    YearQuarter.of(2017, 3),
+                    Map.of(
+                            "Samsung", 856053000,
+                            "Apple", 454419000,
+                            "Xiaomi", 268532000
+                    ),
+                    YearQuarter.of(2017, 4),
+                    Map.of(
+                            "Samsung", 740266000,
+                            "Apple", 731752000,
+                            "Xiaomi", 281878000
+                    ),
+                    YearQuarter.of(2018, 1),
+                    Map.of(
+                            "Samsung", 785648000,
+                            "Apple", 540589000,
+                            "Xiaomi", 284982000
+                    ),
+                    YearQuarter.of(2018, 2),
+                    Map.of(
+                            "Samsung", 723364000,
+                            "Apple", 447151000,
+                            "Xiaomi", 328255000
+                    ),
+                    YearQuarter.of(2018, 3),
+                    Map.of(
+                            "Samsung", 733601000,
+                            "Apple", 457466000,
+                            "Xiaomi", 332197000
+                    )
+            );
+
+           smartphoneMap.entrySet().stream().flatMap(pair -> {
+
+                YearQuarter yearQuarter = pair.getKey();
+                Map<String, Integer> value = pair.getValue();
+
+                List<YearMonth> collect = LocalDateRange.of(yearQuarter.atDay(1), yearQuarter.atEndOfQuarter()).stream().map(YearMonth::from).distinct().collect(Collectors.toList());
+
+
+                return collect.stream().map(yearMonth -> new SimpleEntry<>(yearMonth, value));
+            }).collect(Collectors.toMap(SimpleEntry::getKey, Map.Entry::getValue));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
