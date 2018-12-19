@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.*;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -150,23 +150,32 @@ public class SmartphoneService {
 
     public static void main(String[] args) {
 
-        List<List<String>> data = new ArrayList<>();
+        List<List<String>> dataList = new ArrayList<>();
         try (ICsvListReader listReader = new CsvListReader(new FileReader("response-data-export.csv"), CsvPreference.STANDARD_PREFERENCE)) {
-            String[] header = listReader.getHeader(true);
-//            final CellProcessor[] processors = getProcessors();
+            String[] headers = listReader.getHeader(true);
             List<String> salesList;
             while ((salesList = listReader.read()) != null) {
-                data.add(salesList);
+                dataList.add(salesList);
             }
 
-            Map<YearMonth, Map<String, Float>> yearMonthSmartphoneShare = data.stream().collect(Collectors.toMap(
-                    dataItem -> YearMonth.parse(dataItem.get(0)),
-                    dataItem -> dataItem.stream().skip(1).collect(Collectors.toMap(
-                            o -> header[dataItem.indexOf(o)],
+            Map<YearMonth, Map<String, Float>> yearMonthSmartphoneShare = dataList.stream().collect(Collectors.toMap(
+                    data -> YearMonth.parse(data.get(0)),
+                    data -> data.stream().skip(1).collect(Collectors.toMap(
+                            o -> headers[data.indexOf(o)],
                             Float::valueOf))));
 
 
-            Map<YearQuarter, Map<String, Integer>> smartphoneMap = Map.of(
+            Map<YearQuarter, Optional<Map<String, Float>>> yearQuarterSumMap = yearMonthSmartphoneShare.entrySet().stream().collect(
+                    Collectors.groupingBy(o -> YearQuarter.from(o.getKey()),
+                            Collectors.mapping(Map.Entry::getValue,
+                                    Collectors.reducing((m1, m2) ->
+                                            Stream.of(m1, m2)
+                                                    .map(Map::entrySet)
+                                                    .flatMap(Collection::stream)
+                                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Float::sum)))
+                            )));
+
+            Map<YearQuarter, Map<String, Integer>> yearQuarterSmartphoneSalesMap = Map.of(
                     YearQuarter.of(2017, 1),
                     Map.of(
                             "Samsung", 786714000,
@@ -211,16 +220,34 @@ public class SmartphoneService {
                     )
             );
 
-           smartphoneMap.entrySet().stream().flatMap(pair -> {
+            Map<YearMonth, Map<String, Integer>> collect = yearQuarterSmartphoneSalesMap.entrySet().stream().flatMap(pair -> {
 
                 YearQuarter yearQuarter = pair.getKey();
-                Map<String, Integer> value = pair.getValue();
+                Map<String, Integer> smartphoneSalesMapByYearQuarter = pair.getValue();
 
-                List<YearMonth> collect = LocalDateRange.of(yearQuarter.atDay(1), yearQuarter.atEndOfQuarter()).stream().map(YearMonth::from).distinct().collect(Collectors.toList());
+                List<YearMonth> yearMonthsByQuarter = LocalDateRange.of(yearQuarter.atDay(1), yearQuarter.atEndOfQuarter())
+                        .stream().map(YearMonth::from)
+                        .distinct()
+                        .collect(Collectors.toList());
 
-
-                return collect.stream().map(yearMonth -> new SimpleEntry<>(yearMonth, value));
+                return yearMonthsByQuarter.stream().map(yearMonth -> {
+                    Map<String, Float> smartphoneShareByYearMonth = yearMonthSmartphoneShare.get(yearMonth);
+                    Map<String, Integer> smartphoneQuantityByYearMonth = smartphoneSalesMapByYearQuarter.entrySet().stream().collect(Collectors.toMap(
+                            o -> o.getKey(),
+                            o -> {
+                                String smartphone = o.getKey();
+                                Integer quarterSum = o.getValue();
+                                Map<String, Float> smartphoneSumMarketShareByYearQuarter = yearQuarterSumMap.get(yearQuarter).orElseThrow(IllegalStateException::new);
+                                Float percentSum = smartphoneSumMarketShareByYearQuarter.get(smartphone);
+                                Float percentByYearMonth = smartphoneShareByYearMonth.get(smartphone);
+                                return Math.round(percentByYearMonth * quarterSum / percentSum);
+                            }));
+                    return new SimpleEntry<>(yearMonth, smartphoneQuantityByYearMonth);
+                });
             }).collect(Collectors.toMap(SimpleEntry::getKey, Map.Entry::getValue));
+
+
+            System.out.println(collect);
 
         } catch (IOException e) {
             e.printStackTrace();
