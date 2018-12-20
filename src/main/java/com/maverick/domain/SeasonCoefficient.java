@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.domain.Range;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;

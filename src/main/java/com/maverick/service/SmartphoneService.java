@@ -1,10 +1,11 @@
 package com.maverick.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.maverick.domain.BrandProjection;
 import com.maverick.domain.Sale;
 import com.maverick.domain.Smartphone;
 import com.maverick.domain.SmartphoneDto;
+import com.maverick.domain.projection.BrandModelProjection;
+import com.maverick.domain.projection.SalesProjection;
 import com.maverick.repository.SmartphoneRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -194,16 +195,16 @@ public class SmartphoneService {
 
             smartphoneRepository.deleteAll();
             smartphoneRepository.insert(smartphones);
-
-            smartphoneRepository.findAll();
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public List<String> getModelsByBrand(String brand) {
-        return smartphoneRepository.findByBrand(brand).stream().map(BrandProjection::getBrand).collect(Collectors.toList());
+    public SortedSet<BrandModelProjection> getBrandModels() {
+        return smartphoneRepository.findAllBy();
+    }
+
+    public SalesProjection getSalesById(ObjectId objectId) {
+        return smartphoneRepository.findByIdIs(objectId);
     }
 }

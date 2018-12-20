@@ -3,11 +3,9 @@ package com.maverick.domain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.types.ObjectId;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.web.client.AsyncRestTemplate;
 
 import java.time.LocalDate;
 

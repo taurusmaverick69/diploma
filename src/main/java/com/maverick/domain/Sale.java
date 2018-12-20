@@ -8,7 +8,6 @@ import java.time.YearMonth;
 @Data
 public class Sale implements Comparable<Sale> {
 
-    private LocalDate date;
     private YearMonth yearMonth;
     private int quantity;
 

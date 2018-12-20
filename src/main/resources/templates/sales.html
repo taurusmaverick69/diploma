@@ -67,15 +67,14 @@
         </div>
         <canvas id="myChart"></canvas>
     </div>
-
-
-
 </main>
 <div th:replace="fragments/footer :: footer"/>
 
 <script th:inline="javascript">
 
     function buildChart() {
+
+        console.log("test")
 
         var year = document.getElementById("year");
         var selectedYear = year.options[year.selectedIndex].value;

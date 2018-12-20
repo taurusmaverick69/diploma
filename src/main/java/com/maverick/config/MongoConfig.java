@@ -18,7 +18,7 @@ import java.util.Arrays;
 @Configuration
 @EnableMongoRepositories(basePackages = "com.maverick.repository")
 @EntityScan(basePackages = "com.maverick.domain")
-public class MongoConfig extends AbstractMongoConfiguration    {
+public class MongoConfig extends AbstractMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
@@ -27,17 +27,16 @@ public class MongoConfig extends AbstractMongoConfiguration    {
 
     @Bean
     public MongoClient mongoClient() {
-//        CodecRegistry codecRegistry = CodecRegistries.fromRegistries(CodecRegistries.fromCodecs(new YearMonthAsDocumentCodec()),
-//                MongoClient.getDefaultCodecRegistry());
-//        MongoClientOptions options = MongoClientOptions.builder().codecRegistry(codecRegistry).build();
-        return new MongoClient("localhost");
+        CodecRegistry codecRegistry = CodecRegistries.fromRegistries(CodecRegistries.fromCodecs(new YearMonthAsDocumentCodec()),
+                MongoClient.getDefaultCodecRegistry());
+        MongoClientOptions options = MongoClientOptions.builder().codecRegistry(codecRegistry).build();
+        return new MongoClient("localhost", options);
     }
 
     @Override
     public CustomConversions customConversions() {
         return new MongoCustomConversions(Arrays.asList(
-                new DBObjectToYearMonthConverter(),
-                new YearMonthToDBObjectConverter()
+                new DBObjectToYearMonthConverter()
         ));
     }
 

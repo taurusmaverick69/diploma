@@ -12,79 +12,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 
-    <!--<script src="/webjars/chartjs/2.7.3/Chart.js"></script>-->
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript" src="/webjars/materializecss/1.0.0/js/materialize.min.js"></script>
+    <script src="/webjars/chartjs/2.7.3/Chart.js"></script>
+
+
 </head>
 
 <body>
-
+<header>
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo left">Statistic</a>
+            <ul class="right">
+                <li>You're logged as admin</li>
+                <li><a href="/logout"><i class="material-icons right">exit_to_app</i>Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
 <main>
     <div class="container">
-        <h3 th:text="${smartphone}"></h3>
+        <h3>Choose smartphone</h3>
         <div class="row">
             <div class="input-field col s12 m4 l5">
-                <select id="year">
-                    <option th:each="year:${years}" th:value="${year}" th:text="${year}"/>
+                <select id="brand-model" th:onchange="'javascript:buildChart();'">
+                    <option value="" disabled selected>Choose smartphone</option>
+                    <option th:each="brandModel:${brandModels}"
+                            th:value="${brandModel.id}"
+                            th:text="${brandModel.brand + ' ' + brandModel.model}"></option>
                 </select>
-                <label for="year">Year</label>
-            </div>
-            <div class="input-field col s12 m4 l5">
-                <select id="range">
-                    <option value="months">By month</option>
-                    <option value="seasons">By season</option>
-                </select>
-                <label for="range">Range</label>
-            </div>
-            <div class="input-field col s12 m4 l2">
-                <a class="waves-effect waves-light btn" th:onclick="'javascript:buildChart();'">Build</a>
+                <label for="brand-model">Smartphone</label>
             </div>
         </div>
         <canvas id="myChart"></canvas>
-    </div>
 
-    <div class="input-field col s12">
-        <select id="testSelect" onchange="testF();">
-            <option value="" disabled selected>Choose your option</option>
-            <option value="1">Apple</option>
-            <option value="2">Samsung</option>
-            <option value="3">Xiaomi</option>
-        </select>
-        <label>Materialize Select</label>
     </div>
-
 </main>
+<!--<footer>-->
+
+<!--</footer>-->
 <!--<div th:replace="fragments/footer :: footer"/>-->
-
-
-<!--<canvas id="myChart" width="400" height="400"></canvas>-->
-
-<!--JavaScript at end of body for optimized loading-->
-<script type="text/javascript" src="/webjars/materializecss/1.0.0/js/materialize.min.js"></script>
-
-<script type="text/javascript">
-
-    function testF() {
-        var selectBox = document.getElementById("testSelect");
-        var selectedValue = selectBox.options[selectBox.selectedIndex].innerHTML;
-
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", "/smartphone/models?brand=" + selectedValue, false); // false for synchronous request
-        xmlHttp.send(null);
-
-
-       console.log( xmlHttp.responseText);
-    }
-
-</script>
-
-
-<script th:inline="javascript">
-    document.addEventListener('DOMContentLoaded', function () {
-        var elems = document.querySelectorAll('select');
-        var instances = M.FormSelect.init(elems);
-        console.log(instances)
-    });
-</script>
-</body>
 
 
 <!--<script>-->
@@ -126,4 +94,110 @@
 <!--}-->
 <!--});-->
 <!--</script>-->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var elems = document.querySelectorAll('select');
+        var instances = M.FormSelect.init(elems);
+    });
+</script>
+
+
+<script th:inline="javascript">
+
+    function buildChart() {
+        var select = document.getElementById("brand-model");
+        var id = select.options[select.selectedIndex].value;
+
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "/smartphone/sales?id=" + id, false); // false for synchronous request
+        xmlHttp.send(null);
+
+        var json = JSON.parse(xmlHttp.responseText);
+        var sales = json.expectedSales;
+        let yearMonths = sales.map(sale => sale.yearMonth);
+        let quantities = sales.map(sale => sale.quantity);
+        let quantities2 = sales.map(sale => sale.quantity +900000);
+
+
+
+
+
+        var ctx = document.getElementById("myChart").getContext('2d');
+
+
+        var expectedDataset = {
+            label: 'Expected Sales',
+            data: quantities,
+            borderColor: 'red',
+            backgroundColor: 'transparent',
+            borderWidth: 1
+        };
+
+        var actualDataset = {
+            label: 'Actual Sales',
+            data: quantities2,
+            borderColor: 'green',
+            backgroundColor: 'transparent',
+            borderWidth: 1
+        };
+
+
+        var options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        };
+
+        if(myChart!=null){
+            myChart.destroy();
+        }
+
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: yearMonths,
+                datasets: [expectedDataset, actualDataset]
+            },
+            options: options
+        });
+
+
+        // var year = document.getElementById("year");
+        // var selectedYear = year.options[year.selectedIndex].value;
+        //
+        // var range = document.getElementById("range");
+        // var selectedRange = range.options[range.selectedIndex].value;
+        //
+        // var data = {
+        //     labels: [[${ranges}]][selectedRange],
+        //     datasets: [
+        //         {
+        //             label: "My DataSet",
+        //             fillColor: "rgba(151,187,205,0.5)",
+        //             strokeColor: "rgba(151,187,205,1)",
+        //             pointColor: "rgba(151,187,205,1)",
+        //             pointStrokeColor: "#fff",
+        //             pointHighlightFill: "#fff",
+        //             pointHighlightStroke: "rgba(151,187,205,1)",
+        //             data: [40, 50, 80, 60, 45, 50]
+        //         }
+        //     ]
+        // };
+        // if (window.myLine !== undefined) window.myLine.destroy();
+        // var ctx = document.getElementById("myChart").getContext("2d");
+        // window.myLine = new Chart(ctx).Line(data, {
+        //     responsive: true
+        // });
+    }
+
+</script>
+</body>
 </html>
+
+
+

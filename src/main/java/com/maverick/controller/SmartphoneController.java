@@ -1,7 +1,7 @@
 package com.maverick.controller;
 
-import com.maverick.domain.Smartphone;
-import com.maverick.domain.TestDto;
+import com.maverick.domain.projection.BrandModelProjection;
+import com.maverick.domain.projection.SalesProjection;
 import com.maverick.service.SmartphoneService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +10,10 @@ import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.SortedSet;
 
 @Controller
 @RequestMapping("/smartphone")
@@ -37,9 +36,6 @@ public class SmartphoneController {
                 .queryParams(params).build().toUriString();
 
 
-
-
-
         model.addAttribute("smartphones", smartphoneService.findAll());
         model.addAttribute("isTimeToDelivery", smartphoneService.isTimeToDelivery());
         return "main";
@@ -52,22 +48,24 @@ public class SmartphoneController {
     }
 
     @GetMapping("/sales")
-    public String getSales(Model model) {
-        List<Smartphone> all = smartphoneService.findAll();
-        System.out.println(all);
-        model.addAttribute("smartphones", all);
+    public String getBrandModels(Model model) {
+        SortedSet<BrandModelProjection> brandModels = smartphoneService.getBrandModels();
+        model.addAttribute("brandModels", brandModels);
         return "newsales";
     }
+
+
+    @GetMapping(value = "/sales", params = "id")
+    @ResponseBody
+    public SalesProjection getSales(@RequestParam String id) {
+        ObjectId objectId = new ObjectId(id);
+        return smartphoneService.getSalesById(objectId);
+    }
+
 
     @PostMapping("/reset")
     @ResponseBody
     public void resetData() throws IOException {
         smartphoneService.resetData();
-    }
-
-    @GetMapping("models")
-    @ResponseBody
-    public List<String> getModelsByBrand(@RequestParam String brand) {
-        return smartphoneService.getModelsByBrand(brand);
     }
 }
