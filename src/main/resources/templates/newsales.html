@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>SALES</title>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="/webjars/materializecss/1.0.0/css/materialize.min.css"
+          media="screen,projection"/>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+
+    <!--<script src="/webjars/chartjs/2.7.3/Chart.js"></script>-->
+</head>
+
+<body>
+
+<main>
+    <div class="container">
+        <h3 th:text="${smartphone}"></h3>
+        <div class="row">
+            <div class="input-field col s12 m4 l5">
+                <select id="year">
+                    <option th:each="year:${years}" th:value="${year}" th:text="${year}"/>
+                </select>
+                <label for="year">Year</label>
+            </div>
+            <div class="input-field col s12 m4 l5">
+                <select id="range">
+                    <option value="months">By month</option>
+                    <option value="seasons">By season</option>
+                </select>
+                <label for="range">Range</label>
+            </div>
+            <div class="input-field col s12 m4 l2">
+                <a class="waves-effect waves-light btn" th:onclick="'javascript:buildChart();'">Build</a>
+            </div>
+        </div>
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <div class="input-field col s12">
+        <select id="testSelect" onchange="testF();">
+            <option value="" disabled selected>Choose your option</option>
+            <option value="1">Apple</option>
+            <option value="2">Samsung</option>
+            <option value="3">Xiaomi</option>
+        </select>
+        <label>Materialize Select</label>
+    </div>
+
+</main>
+<!--<div th:replace="fragments/footer :: footer"/>-->
+
+
+<!--<canvas id="myChart" width="400" height="400"></canvas>-->
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="/webjars/materializecss/1.0.0/js/materialize.min.js"></script>
+
+<script type="text/javascript">
+
+    function testF() {
+        var selectBox = document.getElementById("testSelect");
+        var selectedValue = selectBox.options[selectBox.selectedIndex].innerHTML;
+
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "/smartphone/models?brand=" + selectedValue, false); // false for synchronous request
+        xmlHttp.send(null);
+
+
+       console.log( xmlHttp.responseText);
+    }
+
+</script>
+
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var elems = document.querySelectorAll('select');
+        var instances = M.FormSelect.init(elems);
+        console.log(instances)
+    });
+</script>
+</body>
+
+
+<!--<script>-->
+<!--var ctx = document.getElementById("myChart");-->
+<!--var myChart = new Chart(ctx, {-->
+<!--type: 'bar',-->
+<!--data: {-->
+<!--labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],-->
+<!--datasets: [{-->
+<!--label: '# of Votes',-->
+<!--data: [12, 19, 3, 5, 2, 3],-->
+<!--backgroundColor: [-->
+<!--'rgba(255, 99, 132, 0.2)',-->
+<!--'rgba(54, 162, 235, 0.2)',-->
+<!--'rgba(255, 206, 86, 0.2)',-->
+<!--'rgba(75, 192, 192, 0.2)',-->
+<!--'rgba(153, 102, 255, 0.2)',-->
+<!--'rgba(255, 159, 64, 0.2)'-->
+<!--],-->
+<!--borderColor: [-->
+<!--'rgba(255,99,132,1)',-->
+<!--'rgba(54, 162, 235, 1)',-->
+<!--'rgba(255, 206, 86, 1)',-->
+<!--'rgba(75, 192, 192, 1)',-->
+<!--'rgba(153, 102, 255, 1)',-->
+<!--'rgba(255, 159, 64, 1)'-->
+<!--],-->
+<!--borderWidth: 1-->
+<!--}]-->
+<!--},-->
+<!--options: {-->
+<!--scales: {-->
+<!--yAxes: [{-->
+<!--ticks: {-->
+<!--beginAtZero:true-->
+<!--}-->
+<!--}]-->
+<!--}-->
+<!--}-->
+<!--});-->
+<!--</script>-->
+</html>

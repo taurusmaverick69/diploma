@@ -23,9 +23,6 @@ public class SmartphoneController {
     @Autowired
     private SmartphoneService smartphoneService;
 
-    @Autowired
-    private RestTemplate deviceAtlasRestTemplate;
-
     @GetMapping
     public String findAll(Model model) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -39,9 +36,9 @@ public class SmartphoneController {
                 .fromPath("/device-data/explorer/ajax/map-data-public")
                 .queryParams(params).build().toUriString();
 
-        TestDto dto = deviceAtlasRestTemplate.getForObject(uri, TestDto.class);
 
-        dto.getData().stream().mapToDouble(strings -> Double.valueOf(strings.get(2))).sum();
+
+
 
         model.addAttribute("smartphones", smartphoneService.findAll());
         model.addAttribute("isTimeToDelivery", smartphoneService.isTimeToDelivery());
@@ -54,16 +51,23 @@ public class SmartphoneController {
         smartphoneService.updateTracking(id, isTracked);
     }
 
-    @GetMapping("/test")
-    public String test(Model model) {
+    @GetMapping("/sales")
+    public String getSales(Model model) {
         List<Smartphone> all = smartphoneService.findAll();
         System.out.println(all);
         model.addAttribute("smartphones", all);
-        return "test";
+        return "newsales";
     }
 
     @PostMapping("/reset")
+    @ResponseBody
     public void resetData() throws IOException {
         smartphoneService.resetData();
+    }
+
+    @GetMapping("models")
+    @ResponseBody
+    public List<String> getModelsByBrand(@RequestParam String brand) {
+        return smartphoneService.getModelsByBrand(brand);
     }
 }

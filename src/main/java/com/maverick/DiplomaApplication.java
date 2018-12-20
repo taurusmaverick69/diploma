@@ -11,14 +11,6 @@ import javax.annotation.PostConstruct;
 @SpringBootApplication
 public class DiplomaApplication {
 
-
-    @Bean
-    public RestTemplate deviceAtlasRestTemplate(RestTemplateBuilder builder) {
-//        https://deviceatlas.com/device-data/explorer/ajax/map-data-public?traffic=no-tablet&period=&country=by&val=Apple+iPhone+7+Plus&type=device_marketing&_=1543319407169
-
-        return builder.rootUri("https://deviceatlas.com/").build();
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(DiplomaApplication.class, args);
     }

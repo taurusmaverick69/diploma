@@ -1,6 +1,7 @@
 package com.maverick.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maverick.domain.BrandProjection;
 import com.maverick.domain.Sale;
 import com.maverick.domain.Smartphone;
 import com.maverick.domain.SmartphoneDto;
@@ -30,6 +31,50 @@ import static java.time.Month.*;
 @Service
 public class SmartphoneService {
 
+    private static final Map<YearQuarter, Map<String, Integer>> YEAR_QUARTER_SMARTPHONE_QUANTITY_MAP = Map.of(
+            YearQuarter.of(2017, 1),
+            Map.of(
+                    "Samsung", 786714000,
+                    "Apple", 519925000,
+                    "Xiaomi", 127073000
+            ),
+            YearQuarter.of(2017, 2),
+            Map.of(
+                    "Samsung", 825351000,
+                    "Apple", 443148000,
+                    "Xiaomi", 241785000
+            ),
+            YearQuarter.of(2017, 3),
+            Map.of(
+                    "Samsung", 856053000,
+                    "Apple", 454419000,
+                    "Xiaomi", 268532000
+            ),
+            YearQuarter.of(2017, 4),
+            Map.of(
+                    "Samsung", 740266000,
+                    "Apple", 731752000,
+                    "Xiaomi", 281878000
+            ),
+            YearQuarter.of(2018, 1),
+            Map.of(
+                    "Samsung", 785648000,
+                    "Apple", 540589000,
+                    "Xiaomi", 284982000
+            ),
+            YearQuarter.of(2018, 2),
+            Map.of(
+                    "Samsung", 723364000,
+                    "Apple", 447151000,
+                    "Xiaomi", 328255000
+            ),
+            YearQuarter.of(2018, 3),
+            Map.of(
+                    "Samsung", 733601000,
+                    "Apple", 457466000,
+                    "Xiaomi", 332197000
+            )
+    );
     @Autowired
     private SmartphoneRepository smartphoneRepository;
 
@@ -69,87 +114,6 @@ public class SmartphoneService {
         int uaPercent = 20;
         int uaPercentage = 100 / uaPercent;
 
-        Map<YearQuarter, Map<String, Integer>> smartphoneMap = Map.of(
-                YearQuarter.of(2017, 1),
-                Map.of(
-                        "Samsung", 786714000,
-                        "Apple", 519925000,
-                        "Xiaomi", 127073000
-                ),
-                YearQuarter.of(2017, 2),
-                Map.of(
-                        "Samsung", 825351000,
-                        "Apple", 443148000,
-                        "Xiaomi", 241785000
-                ),
-                YearQuarter.of(2017, 3),
-                Map.of(
-                        "Samsung", 856053000,
-                        "Apple", 454419000,
-                        "Xiaomi", 268532000
-                ),
-                YearQuarter.of(2017, 4),
-                Map.of(
-                        "Samsung", 740266000,
-                        "Apple", 731752000,
-                        "Xiaomi", 281878000
-                ),
-                YearQuarter.of(2018, 1),
-                Map.of(
-                        "Samsung", 785648000,
-                        "Apple", 540589000,
-                        "Xiaomi", 284982000
-                ),
-                YearQuarter.of(2018, 2),
-                Map.of(
-                        "Samsung", 723364000,
-                        "Apple", 447151000,
-                        "Xiaomi", 328255000
-                ),
-                YearQuarter.of(2018, 3),
-                Map.of(
-                        "Samsung", 733601000,
-                        "Apple", 457466000,
-                        "Xiaomi", 332197000
-                )
-        );
-
-
-        Map<YearQuarter, Integer> yearQuarterSumQuantityMap = smartphoneMap.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                brandQuantity -> brandQuantity.getValue().values().stream().map(quantity -> quantity / uaPercentage).mapToInt(value -> value).sum()));
-
-        SmartphoneDto[] smartphoneDtos = mapper.readValue(new File("response-data-export.json"), SmartphoneDto[].class);
-
-        List<Smartphone> smartphones = Arrays.stream(smartphoneDtos).map(smartphoneDto -> {
-
-            String deviceModel = smartphoneDto.getDeviceModel();
-            float popularity = smartphoneDto.getPopularity();
-            String brand = StringUtils.substringBefore(deviceModel, StringUtils.SPACE);
-            String model = StringUtils.substringAfter(deviceModel, StringUtils.SPACE);
-
-            Smartphone smartphone = new Smartphone();
-            smartphone.setBrand(brand);
-            smartphone.setModel(model);
-
-            SortedSet<Sale> expectedSales = yearQuarterSumQuantityMap.entrySet().stream().map(yearQuarterSumQuantity -> {
-                Sale sale = new Sale();
-                sale.setYearQuarter(yearQuarterSumQuantity.getKey());
-                int regionQuantity = Math.round(yearQuarterSumQuantity.getValue() * popularity);
-                sale.setQuantity(regionQuantity);
-                return sale;
-            }).collect(Collectors.toCollection(TreeSet::new));
-
-            smartphone.setExpectedSales(expectedSales);
-            return smartphone;
-        }).collect(Collectors.toList());
-
-        smartphoneRepository.deleteAll();
-        smartphoneRepository.insert(smartphones);
-    }
-
-    public static void main(String[] args) {
-
         List<List<String>> dataList = new ArrayList<>();
         try (ICsvListReader listReader = new CsvListReader(new FileReader("response-data-export.csv"), CsvPreference.STANDARD_PREFERENCE)) {
             String[] headers = listReader.getHeader(true);
@@ -157,13 +121,11 @@ public class SmartphoneService {
             while ((salesList = listReader.read()) != null) {
                 dataList.add(salesList);
             }
-
             Map<YearMonth, Map<String, Float>> yearMonthSmartphoneShare = dataList.stream().collect(Collectors.toMap(
                     data -> YearMonth.parse(data.get(0)),
                     data -> data.stream().skip(1).collect(Collectors.toMap(
                             o -> headers[data.indexOf(o)],
                             Float::valueOf))));
-
 
             Map<YearQuarter, Optional<Map<String, Float>>> yearQuarterSumMap = yearMonthSmartphoneShare.entrySet().stream().collect(
                     Collectors.groupingBy(o -> YearQuarter.from(o.getKey()),
@@ -175,52 +137,7 @@ public class SmartphoneService {
                                                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Float::sum)))
                             )));
 
-            Map<YearQuarter, Map<String, Integer>> yearQuarterSmartphoneSalesMap = Map.of(
-                    YearQuarter.of(2017, 1),
-                    Map.of(
-                            "Samsung", 786714000,
-                            "Apple", 519925000,
-                            "Xiaomi", 127073000
-                    ),
-                    YearQuarter.of(2017, 2),
-                    Map.of(
-                            "Samsung", 825351000,
-                            "Apple", 443148000,
-                            "Xiaomi", 241785000
-                    ),
-                    YearQuarter.of(2017, 3),
-                    Map.of(
-                            "Samsung", 856053000,
-                            "Apple", 454419000,
-                            "Xiaomi", 268532000
-                    ),
-                    YearQuarter.of(2017, 4),
-                    Map.of(
-                            "Samsung", 740266000,
-                            "Apple", 731752000,
-                            "Xiaomi", 281878000
-                    ),
-                    YearQuarter.of(2018, 1),
-                    Map.of(
-                            "Samsung", 785648000,
-                            "Apple", 540589000,
-                            "Xiaomi", 284982000
-                    ),
-                    YearQuarter.of(2018, 2),
-                    Map.of(
-                            "Samsung", 723364000,
-                            "Apple", 447151000,
-                            "Xiaomi", 328255000
-                    ),
-                    YearQuarter.of(2018, 3),
-                    Map.of(
-                            "Samsung", 733601000,
-                            "Apple", 457466000,
-                            "Xiaomi", 332197000
-                    )
-            );
-
-            Map<YearMonth, Map<String, Integer>> collect = yearQuarterSmartphoneSalesMap.entrySet().stream().flatMap(pair -> {
+            Map<YearMonth, Map<String, Integer>> yearMonthSmartphoneQuantityMap = YEAR_QUARTER_SMARTPHONE_QUANTITY_MAP.entrySet().stream().flatMap(pair -> {
 
                 YearQuarter yearQuarter = pair.getKey();
                 Map<String, Integer> smartphoneSalesMapByYearQuarter = pair.getValue();
@@ -233,7 +150,7 @@ public class SmartphoneService {
                 return yearMonthsByQuarter.stream().map(yearMonth -> {
                     Map<String, Float> smartphoneShareByYearMonth = yearMonthSmartphoneShare.get(yearMonth);
                     Map<String, Integer> smartphoneQuantityByYearMonth = smartphoneSalesMapByYearQuarter.entrySet().stream().collect(Collectors.toMap(
-                            o -> o.getKey(),
+                            Map.Entry::getKey,
                             o -> {
                                 String smartphone = o.getKey();
                                 Integer quarterSum = o.getValue();
@@ -247,10 +164,46 @@ public class SmartphoneService {
             }).collect(Collectors.toMap(SimpleEntry::getKey, Map.Entry::getValue));
 
 
-            System.out.println(collect);
+            Map<YearMonth, Integer> yearQuarterSumQuantityMap = yearMonthSmartphoneQuantityMap.entrySet().stream().collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    brandQuantity -> brandQuantity.getValue().values().stream().map(quantity -> quantity / uaPercentage).mapToInt(value -> value).sum()));
+
+            SmartphoneDto[] smartphoneDtos = mapper.readValue(new File("response-data-export.json"), SmartphoneDto[].class);
+            List<Smartphone> smartphones = Arrays.stream(smartphoneDtos).map(smartphoneDto -> {
+
+                String deviceModel = smartphoneDto.getDeviceModel();
+                float popularity = smartphoneDto.getPopularity();
+                String brand = StringUtils.substringBefore(deviceModel, StringUtils.SPACE);
+                String model = StringUtils.substringAfter(deviceModel, StringUtils.SPACE);
+
+                Smartphone smartphone = new Smartphone();
+                smartphone.setBrand(brand);
+                smartphone.setModel(model);
+
+                SortedSet<Sale> expectedSales = yearQuarterSumQuantityMap.entrySet().stream().map(yearMonthSumQuantity -> {
+                    Sale sale = new Sale();
+                    sale.setYearMonth(yearMonthSumQuantity.getKey());
+                    int regionQuantity = Math.round(yearMonthSumQuantity.getValue() * (popularity / 100f));
+                    sale.setQuantity(regionQuantity);
+                    return sale;
+                }).collect(Collectors.toCollection(TreeSet::new));
+
+                smartphone.setExpectedSales(expectedSales);
+                return smartphone;
+            }).collect(Collectors.toList());
+
+            smartphoneRepository.deleteAll();
+            smartphoneRepository.insert(smartphones);
+
+            smartphoneRepository.findAll();
+
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<String> getModelsByBrand(String brand) {
+        return smartphoneRepository.findByBrand(brand).stream().map(BrandProjection::getBrand).collect(Collectors.toList());
     }
 }
