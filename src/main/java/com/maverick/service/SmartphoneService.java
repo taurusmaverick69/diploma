@@ -1,89 +1,55 @@
 package com.maverick.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.maverick.domain.Sale;
-import com.maverick.domain.Smartphone;
-import com.maverick.domain.SmartphoneDto;
+import com.maverick.domain.data.Sale;
+import com.maverick.domain.document.Smartphone;
+import com.maverick.domain.projection.BasicProjection;
 import com.maverick.domain.projection.BrandModelProjection;
-import com.maverick.domain.projection.SalesProjection;
+import com.maverick.domain.projection.StatisticProjection;
 import com.maverick.repository.SmartphoneRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
 import org.threeten.extra.LocalDateRange;
 import org.threeten.extra.YearQuarter;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.maverick.domain.document.Smartphone.COUNTER_POINT_MAP;
+import static com.maverick.domain.document.Smartphone.YEAR_QUARTER_SMARTPHONE_QUANTITY_MAP;
 import static java.time.Month.*;
 
 @Service
 public class SmartphoneService {
 
-    private static final Map<YearQuarter, Map<String, Integer>> YEAR_QUARTER_SMARTPHONE_QUANTITY_MAP = Map.of(
-            YearQuarter.of(2017, 1),
-            Map.of(
-                    "Samsung", 786714000,
-                    "Apple", 519925000,
-                    "Xiaomi", 127073000
-            ),
-            YearQuarter.of(2017, 2),
-            Map.of(
-                    "Samsung", 825351000,
-                    "Apple", 443148000,
-                    "Xiaomi", 241785000
-            ),
-            YearQuarter.of(2017, 3),
-            Map.of(
-                    "Samsung", 856053000,
-                    "Apple", 454419000,
-                    "Xiaomi", 268532000
-            ),
-            YearQuarter.of(2017, 4),
-            Map.of(
-                    "Samsung", 740266000,
-                    "Apple", 731752000,
-                    "Xiaomi", 281878000
-            ),
-            YearQuarter.of(2018, 1),
-            Map.of(
-                    "Samsung", 785648000,
-                    "Apple", 540589000,
-                    "Xiaomi", 284982000
-            ),
-            YearQuarter.of(2018, 2),
-            Map.of(
-                    "Samsung", 723364000,
-                    "Apple", 447151000,
-                    "Xiaomi", 328255000
-            ),
-            YearQuarter.of(2018, 3),
-            Map.of(
-                    "Samsung", 733601000,
-                    "Apple", 457466000,
-                    "Xiaomi", 332197000
-            )
-    );
     @Autowired
     private SmartphoneRepository smartphoneRepository;
 
     @Autowired
+    private MongoOperations mongoOperations;
+
+    @Autowired
     private ObjectMapper mapper;
 
-    public List<Smartphone> findAll() {
-        return smartphoneRepository.findAll();
+    public SortedSet<BasicProjection> findAll() {
+        return smartphoneRepository.findAllBy(BasicProjection.class);
     }
 
     public Optional<Smartphone> findById(ObjectId id) {
@@ -110,9 +76,9 @@ public class SmartphoneService {
         return lastMonthsOfSeason.contains(currentMonth) && currentMonth.maxLength() == currentDayOfMonth;
     }
 
-    public void resetData() throws IOException {
+    public void resetData() {
 
-        int uaPercent = 20;
+        int uaPercent = 1;
         int uaPercentage = 100 / uaPercent;
 
         List<List<String>> dataList = new ArrayList<>();
@@ -165,33 +131,73 @@ public class SmartphoneService {
             }).collect(Collectors.toMap(SimpleEntry::getKey, Map.Entry::getValue));
 
 
-            Map<YearMonth, Integer> yearQuarterSumQuantityMap = yearMonthSmartphoneQuantityMap.entrySet().stream().collect(Collectors.toMap(
+            Map<YearMonth, Integer> yearMonthSumQuantityMap = yearMonthSmartphoneQuantityMap.entrySet().stream().collect(Collectors.toMap(
                     Map.Entry::getKey,
                     brandQuantity -> brandQuantity.getValue().values().stream().map(quantity -> quantity / uaPercentage).mapToInt(value -> value).sum()));
 
-            SmartphoneDto[] smartphoneDtos = mapper.readValue(new File("response-data-export.json"), SmartphoneDto[].class);
-            List<Smartphone> smartphones = Arrays.stream(smartphoneDtos).map(smartphoneDto -> {
 
-                String deviceModel = smartphoneDto.getDeviceModel();
-                float popularity = smartphoneDto.getPopularity();
-                String brand = StringUtils.substringBefore(deviceModel, StringUtils.SPACE);
-                String model = StringUtils.substringAfter(deviceModel, StringUtils.SPACE);
+            Map<String, Map<YearMonth, Float>> smartphoneYearMonthPercentMap = new HashMap<>();
+            COUNTER_POINT_MAP.forEach((yearMonth, smartphonePercentMap) -> {
+                smartphonePercentMap.forEach((smartphone, percent) -> {
+                    smartphoneYearMonthPercentMap.putIfAbsent(smartphone, new HashMap<>(Map.of(yearMonth, percent)));
+                    smartphoneYearMonthPercentMap.computeIfPresent(smartphone, (s, yearMonthPercentMap) -> {
+                        yearMonthPercentMap.put(yearMonth, percent);
+                        return yearMonthPercentMap;
+                    });
+                });
+            });
+
+            List<Smartphone> smartphones = smartphoneYearMonthPercentMap.entrySet().stream().map(smartphoneYearMonthPercent -> {
+
+                String smartphoneModelBrand = smartphoneYearMonthPercent.getKey();
+                Map<YearMonth, Float> yearMonthPercentMap = smartphoneYearMonthPercent.getValue();
+
+                String brand = StringUtils.substringBefore(smartphoneModelBrand, StringUtils.SPACE);
+                String model = StringUtils.substringAfter(smartphoneModelBrand, StringUtils.SPACE);
 
                 Smartphone smartphone = new Smartphone();
                 smartphone.setBrand(brand);
                 smartphone.setModel(model);
 
-                SortedSet<Sale> expectedSales = yearQuarterSumQuantityMap.entrySet().stream().map(yearMonthSumQuantity -> {
+
+                TreeSet<Sale> sales = yearMonthPercentMap.entrySet().stream().map(yearMonthPercent -> {
+                    YearMonth yearMonth = yearMonthPercent.getKey();
+                    Float percent = yearMonthPercent.getValue();
                     Sale sale = new Sale();
-                    sale.setYearMonth(yearMonthSumQuantity.getKey());
-                    int regionQuantity = Math.round(yearMonthSumQuantity.getValue() * (popularity / 100f));
-                    sale.setQuantity(regionQuantity);
+                    sale.setYearMonth(yearMonth);
+                    Integer quantityByYearMonth = yearMonthSumQuantityMap.get(yearMonth);
+                    int quantity = Math.round(quantityByYearMonth * (percent / 100f));
+                    sale.setQuantity(quantity);
                     return sale;
                 }).collect(Collectors.toCollection(TreeSet::new));
-
-                smartphone.setExpectedSales(expectedSales);
+                smartphone.setExpectedSales(sales);
                 return smartphone;
+
             }).collect(Collectors.toList());
+
+//            SmartphoneDto[] smartphoneDtos = mapper.readValue(new File("response-data-export.json"), SmartphoneDto[].class);
+//            List<Smartphone> smartphones = Arrays.stream(smartphoneDtos).map(smartphoneDto -> {
+//
+//                String deviceModel = smartphoneDto.getDeviceModel();
+//                float popularity = smartphoneDto.getPopularity();
+//                String brand = StringUtils.substringBefore(deviceModel, StringUtils.SPACE);
+//                String model = StringUtils.substringAfter(deviceModel, StringUtils.SPACE);
+//
+//                Smartphone smartphone = new Smartphone();
+//                smartphone.setBrand(brand);
+//                smartphone.setModel(model);
+//
+//                SortedSet<Sale> expectedSales = yearMonthSumQuantityMap.entrySet().stream().map(yearMonthSumQuantity -> {
+//                    Sale sale = new Sale();
+//                    sale.setYearMonth(yearMonthSumQuantity.getKey());
+//                    int regionQuantity = Math.round(yearMonthSumQuantity.getValue() * (popularity / 100f));
+//                    sale.setQuantity(regionQuantity);
+//                    return sale;
+//                }).collect(Collectors.toCollection(TreeSet::new));
+//
+//                smartphone.setExpectedSales(expectedSales);
+//                return smartphone;
+//            }).collect(Collectors.toList());
 
             smartphoneRepository.deleteAll();
             smartphoneRepository.insert(smartphones);
@@ -201,10 +207,47 @@ public class SmartphoneService {
     }
 
     public SortedSet<BrandModelProjection> getBrandModels() {
-        return smartphoneRepository.findAllBy();
+        return smartphoneRepository.findAllBy(BrandModelProjection.class);
     }
 
-    public SalesProjection getSalesById(ObjectId objectId) {
-        return smartphoneRepository.findByIdIs(objectId);
+    public StatisticProjection getStatisticById(ObjectId objectId) {
+        StatisticProjection projection = smartphoneRepository.findByIdIs(objectId);
+        SortedSet<Sale> expectedSales = projection.getExpectedSales();
+        SortedMap<YearMonth, Float> currentCoefficients = projection.getCoefficients();
+
+        Map<YearMonth, Float> blankCoefficients = expectedSales.stream().map(Sale::getYearMonth)
+                .filter(Predicate.not(currentCoefficients::containsKey))
+                .collect(Collectors.toMap(o -> o, o -> 1.0f));
+        currentCoefficients.putAll(blankCoefficients);
+
+
+
+        Sale firstSale = projection.getExpectedSales().first();
+        SortedMap<YearMonth, Float> yearMonthCoefficientMap = currentCoefficients.tailMap(firstSale.getYearMonth());
+
+        TreeSet<Sale> calculatedSales = new TreeSet<>();
+        calculatedSales.add(firstSale);
+
+
+        yearMonthCoefficientMap.forEach((yearMonth, coefficient) -> {
+            Sale sale = new Sale();
+            sale.setYearMonth(yearMonth);
+            Sale leftSale = calculatedSales.floor(sale);
+            sale.setYearMonth(yearMonth);
+            sale.setQuantity(Math.round(leftSale.getQuantity() * coefficient));
+            calculatedSales.add(sale);
+        });
+
+
+        SortedSet<Sale> customCoefficientSales = projection.getCalculatedSales();
+        customCoefficientSales.clear();
+        customCoefficientSales.addAll(calculatedSales);
+        return projection;
+    }
+
+    public void updateCoefficients(Smartphone smartphone) {
+        Query query = Query.query(Criteria.where("_id").is(smartphone.getId()));
+        Update update = Update.update("coefficients", smartphone.getCoefficients());
+        mongoOperations.updateFirst(query, update, Smartphone.class);
     }
 }

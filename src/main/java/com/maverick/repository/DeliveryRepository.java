@@ -1,7 +1,7 @@
 package com.maverick.repository;
 
-import com.maverick.domain.Delivery;
-import com.maverick.domain.Smartphone;
+import com.maverick.domain.data.Delivery;
+import com.maverick.domain.document.Smartphone;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

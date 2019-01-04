@@ -58,7 +58,7 @@
             </thead>
             <tbody>
             <tr th:each="coefficient:${coefficients}">
-                <!--/*@thymesVar id="coefficient" type="com.maverick.domain.SeasonCoefficient"*/-->
+                <!--/*@thymesVar id="coefficient" type="com.maverick.domain.data.SeasonCoefficient"*/-->
                 <td th:text="${coefficient.country.country}"/>
                 <td th:text="${#dates.format(coefficient.startDate, 'dd.MM.yyy')}"/>
                 <td th:text="${#dates.format(coefficient.endDate, 'dd.MM.yyy')}"/>

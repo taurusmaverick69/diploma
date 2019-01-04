@@ -1,8 +1,7 @@
 package com.maverick.repository;
 
-import com.maverick.domain.Smartphone;
-import com.maverick.domain.projection.BrandModelProjection;
-import com.maverick.domain.projection.SalesProjection;
+import com.maverick.domain.document.Smartphone;
+import com.maverick.domain.projection.StatisticProjection;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -13,7 +12,7 @@ public interface SmartphoneRepository extends MongoRepository<Smartphone, Object
 
     List<Smartphone> findByIsTrackedTrue();
 
-    SortedSet<BrandModelProjection> findAllBy();
+    <T> SortedSet<T> findAllBy(Class<T> projection);
 
-    SalesProjection findByIdIs(ObjectId id);
+    StatisticProjection findByIdIs(ObjectId id);
 }

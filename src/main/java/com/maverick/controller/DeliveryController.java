@@ -1,6 +1,6 @@
 package com.maverick.controller;
 
-import com.maverick.domain.Delivery;
+import com.maverick.domain.data.Delivery;
 import com.maverick.domain.enums.Season;
 import com.maverick.service.DeliveryService;
 import org.springframework.beans.factory.annotation.Autowired;

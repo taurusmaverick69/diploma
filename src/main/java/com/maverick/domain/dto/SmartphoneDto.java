@@ -1,4 +1,4 @@
-package com.maverick.domain;
+package com.maverick.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.maverick.service;
 
-import com.maverick.domain.SeasonCoefficient;
+import com.maverick.domain.data.SeasonCoefficient;
 import com.maverick.repository.SeasonCoefficientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

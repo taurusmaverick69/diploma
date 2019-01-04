@@ -1,5 +1,6 @@
-package com.maverick.domain;
+package com.maverick.domain.data;
 
+import com.maverick.domain.document.Smartphone;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.types.ObjectId;

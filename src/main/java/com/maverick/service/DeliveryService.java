@@ -1,6 +1,6 @@
 package com.maverick.service;
 
-import com.maverick.domain.Delivery;
+import com.maverick.domain.data.Delivery;
 import com.maverick.repository.DeliveryRepository;
 import com.maverick.repository.SmartphoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;

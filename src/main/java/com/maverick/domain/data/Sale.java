@@ -1,11 +1,12 @@
-package com.maverick.domain;
+package com.maverick.domain.data;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 
 @Data
+@EqualsAndHashCode(of = "yearMonth")
 public class Sale implements Comparable<Sale> {
 
     private YearMonth yearMonth;

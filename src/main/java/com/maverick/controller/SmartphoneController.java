@@ -1,18 +1,15 @@
 package com.maverick.controller;
 
+import com.maverick.domain.document.Smartphone;
 import com.maverick.domain.projection.BrandModelProjection;
-import com.maverick.domain.projection.SalesProjection;
+import com.maverick.domain.projection.StatisticProjection;
 import com.maverick.service.SmartphoneService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.util.SortedSet;
 
 @Controller
@@ -24,18 +21,6 @@ public class SmartphoneController {
 
     @GetMapping
     public String findAll(Model model) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("traffic", "no-tablet");
-        params.add("period", "");
-        params.add("country", "by");
-        params.add("val", "Apple+iPhone+7+Plus");
-        params.add("type", "device_marketing");
-
-        String uri = UriComponentsBuilder
-                .fromPath("/device-data/explorer/ajax/map-data-public")
-                .queryParams(params).build().toUriString();
-
-
         model.addAttribute("smartphones", smartphoneService.findAll());
         model.addAttribute("isTimeToDelivery", smartphoneService.isTimeToDelivery());
         return "main";
@@ -47,25 +32,23 @@ public class SmartphoneController {
         smartphoneService.updateTracking(id, isTracked);
     }
 
-    @GetMapping("/sales")
-    public String getBrandModels(Model model) {
-        SortedSet<BrandModelProjection> brandModels = smartphoneService.getBrandModels();
-        model.addAttribute("brandModels", brandModels);
-        return "newsales";
-    }
-
-
     @GetMapping(value = "/sales", params = "id")
-    @ResponseBody
-    public SalesProjection getSales(@RequestParam String id) {
+    public String getStatisticById(Model model, @RequestParam String id) {
         ObjectId objectId = new ObjectId(id);
-        return smartphoneService.getSalesById(objectId);
+        StatisticProjection statistic = smartphoneService.getStatisticById(objectId);
+        model.addAttribute("statistic", statistic);
+        return "statisctic";
     }
 
+    @PutMapping("/coefficients")
+    public String updateCoefficients(@ModelAttribute Smartphone smartphone) {
+        smartphoneService.updateCoefficients(smartphone);
+        return "redirect:/smartphone/sales?id=" + smartphone.getId();
+    }
 
-    @PostMapping("/reset")
-    @ResponseBody
-    public void resetData() throws IOException {
+    @GetMapping("/reset")
+    public String resetData() {
         smartphoneService.resetData();
+        return "redirect:/smartphone";
     }
 }
