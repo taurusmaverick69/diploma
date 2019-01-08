@@ -32,16 +32,25 @@
             <h3 class="center-align" th:text="|${statistic.brand} ${statistic.model}| + ' statistics'"></h3>
         </div>
         <div class="col s6">
-            <form action="#" th:action="@{/smartphone/coefficients}" th:object="${statistic}" th:method="put">
+            <form action="#" th:action="@{/smartphone}" th:object="${statistic}" th:method="put">
                 <input th:type="hidden" th:field="${statistic.id}"/>
-                <div class="col s4" th:each="entry : ${statistic.coefficients}">
-                    <div class="col s12">
-                        <!--This is an inline input field:-->
-                        <div class="input-field inline">
-                            <label th:for="${entry.key}" th:text="${entry.key}">example</label>
-                            <input th:id="${entry.key}" th:field="*{coefficients[__${entry.key}__]}" th:value="${entry.value}" type="number" step="0.01" class="validate" required="required"/>
+                <div class="row">
+                    <div class="input-field col s4 offset-s4">
+                        <label th:for="rating">Rating</label>
+                        <input th:id="rating" th:field="${statistic.rating}" th:value="${statistic.rating}" type="number" step="0.01" class="validate" required="required" min="0.0" max="5.0">
+                        <span class="helper-text" data-error="wrong" data-success="right"/>
+                    </div>
+                </div>
+                <div class="row">
 
-                            <span class="helper-text" data-error="wrong" data-success="right"/>
+                    <div class="col s4" th:each="entry : ${statistic.coefficients}">
+                        <div class="col s12">
+                            <!--This is an inline input field:-->
+                            <div class="input-field inline">
+                                <label th:for="${entry.key}" th:text="${entry.key}">example</label>
+                                <input th:id="${entry.key}" th:field="*{coefficients[__${entry.key}__]}" th:value="${entry.value}" type="number" step="0.01" class="validate" required="required"/>
+                                <span class="helper-text" data-error="wrong" data-success="right"/>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -62,29 +71,17 @@
 <!--@formatter:off-->
 
 <script th:inline="javascript">
-
     /*<![CDATA[*/
     var myChart = null;
     document.addEventListener('DOMContentLoaded', function () {
-        var elems = document.querySelectorAll('select');
-        var instances = M.FormSelect.init(elems);
+        var sales = /*[[${statistic.sales}]]*/;
 
-        // var select = document.getElementById("brand-model");
-        // var id = select.options[select.selectedIndex].value;
-        //
-        // var xmlHttp = new XMLHttpRequest();
-        // xmlHttp.open("GET", "/smartphone/statistic?id=" + id, false); // false for synchronous request
-        // xmlHttp.send(null);
+        var yearMonths = Object.keys(sales);
+        var quantities = Object.values(sales);
 
-
-        var expectedSales = /*[[${statistic.expectedSales}]]*/;
-        var calculatedSales = /*[[${statistic.calculatedSales}]]*/;
-
-
-        let yearMonths = expectedSales.map(sale => sale.yearMonth);
-        let expectedQuantities = expectedSales.map(sale => sale.quantity);
-        let calculatedQuantities = calculatedSales.map(sale => sale.quantity);
-
+        let expectedQuantities = quantities.map(quantity => quantity.expectedQuantity);
+        let customCoefficientsQuantities = quantities.map(quantity => quantity.customCoefficientQuantity);
+        let movingAverageQuantities = quantities.map(quantity => quantity.movingAverageQuantity);
 
         var ctx = document.getElementById("myChart").getContext('2d');
 
@@ -96,35 +93,44 @@
             borderWidth: 1
         };
 
-        var calculatedDataset = {
-            label: 'Calculated statistic',
-            data: calculatedQuantities,
+        var customCoefficientsDataset = {
+            label: 'Custom coefficients statistic',
+            data: customCoefficientsQuantities,
             borderColor: 'green',
             backgroundColor: 'transparent',
             borderWidth: 1
         };
 
+        var movingAverageDataset = {
+            label: 'Moving average statistic',
+            data: movingAverageQuantities,
+            borderColor: 'blue',
+            backgroundColor: 'transparent',
+            borderWidth: 1
+        };
+
         var options = {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
+            // scales: {
+            //     yAxes: [{
+            //         ticks: {
+            //             // min: 0,
+            //             // max: 500
+            //         }
+            //     }]
+            // }
         };
         if (myChart == null) {
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: yearMonths,
-                    datasets: [expectedDataset, calculatedDataset]
+                    datasets: [expectedDataset, customCoefficientsDataset, movingAverageDataset]
                 },
                 options: options
             });
         } else {
             myChart.data.labels = yearMonths;
-            myChart.data.datasets = [expectedDataset, calculatedDataset];
+            myChart.data.datasets = [expectedDataset, customCoefficientsDataset];
             myChart.update();
         }
 
@@ -133,7 +139,6 @@
     /*]]>*/
 </script>
 <!--@formatter:on-->
-
 
 </body>
 </html>

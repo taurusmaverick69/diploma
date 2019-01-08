@@ -1,7 +1,6 @@
 package com.maverick.controller;
 
 import com.maverick.domain.document.Smartphone;
-import com.maverick.domain.projection.BrandModelProjection;
 import com.maverick.domain.projection.StatisticProjection;
 import com.maverick.service.SmartphoneService;
 import org.bson.types.ObjectId;
@@ -9,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.SortedSet;
 
 @Controller
 @RequestMapping("/smartphone")
@@ -37,12 +34,12 @@ public class SmartphoneController {
         ObjectId objectId = new ObjectId(id);
         StatisticProjection statistic = smartphoneService.getStatisticById(objectId);
         model.addAttribute("statistic", statistic);
-        return "statisctic";
+        return "statistic";
     }
 
-    @PutMapping("/coefficients")
-    public String updateCoefficients(@ModelAttribute Smartphone smartphone) {
-        smartphoneService.updateCoefficients(smartphone);
+    @PutMapping
+    public String update(@ModelAttribute Smartphone smartphone) {
+        smartphoneService.update(smartphone);
         return "redirect:/smartphone/sales?id=" + smartphone.getId();
     }
 

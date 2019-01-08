@@ -1,19 +1,16 @@
 package com.maverick.domain.data;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.time.YearMonth;
+@Getter
+@Setter
+@ToString
+public class Sale {
 
-@Data
-@EqualsAndHashCode(of = "yearMonth")
-public class Sale implements Comparable<Sale> {
+    private int expectedQuantity;
+    private int customCoefficientQuantity;
+    private int movingAverageQuantity;
 
-    private YearMonth yearMonth;
-    private int quantity;
-
-    @Override
-    public int compareTo(Sale o) {
-        return yearMonth.compareTo(o.getYearMonth());
-    }
 }

@@ -38,7 +38,7 @@ public class DeliveryService {
 //                    delivery.setSold(sold);
 //                    int toBuy = sold - (lastQuantity - sold);
 
-//                    delivery.setQuantity(toBuy);
+//                    delivery.setExpectedQuantity(toBuy);
                     delivery.setDate(dateOfLastDelivery);
                     return delivery;
                 }).collect(Collectors.toList());
@@ -51,7 +51,7 @@ public class DeliveryService {
 
 //    private Integer calculateOnNextSeason(Smartphone smartphone) {
 //        Delivery lastDelivery = deliveryRepository.findFirstBySmartphoneOrderByDateDesc(smartphone);
-//        Integer lastQuantity = lastDelivery.getQuantity();
+//        Integer lastQuantity = lastDelivery.getExpectedQuantity();
 //        LocalDate dateOfLastDelivery = lastDelivery.getDate();
 //        Integer sold = saleRepository.countBySmartphoneAndDateBetween(smartphone, dateOfLastDelivery, LocalDate.now());
 ////        int toBuy = sold - (lastQuantity - sold) * raiting * season;

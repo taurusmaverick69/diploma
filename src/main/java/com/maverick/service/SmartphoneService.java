@@ -15,7 +15,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
@@ -27,7 +26,8 @@ import java.io.IOException;
 import java.time.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -74,6 +74,25 @@ public class SmartphoneService {
         Month currentMonth = currentLocalDate.getMonth();
         int currentDayOfMonth = currentLocalDate.getDayOfMonth();
         return lastMonthsOfSeason.contains(currentMonth) && currentMonth.maxLength() == currentDayOfMonth;
+    }
+
+    public SortedSet<BrandModelProjection> getBrandModels() {
+        return smartphoneRepository.findAllBy(BrandModelProjection.class);
+    }
+
+    public StatisticProjection getStatisticById(ObjectId objectId) {
+        StatisticProjection projection = smartphoneRepository.findByIdIs(objectId);
+        projection.setCustomCoefficientsSales();
+        projection.setMovingAverageSales();
+        return projection;
+    }
+
+    public void update(Smartphone smartphone) {
+        Query query = Query.query(Criteria.where("_id").is(smartphone.getId()));
+        Update update = new Update()
+                .set("coefficients", smartphone.getCoefficients())
+                .set("rating", smartphone.getRating());
+        mongoOperations.updateFirst(query, update, Smartphone.class);
     }
 
     public void resetData() {
@@ -159,95 +178,28 @@ public class SmartphoneService {
                 smartphone.setBrand(brand);
                 smartphone.setModel(model);
 
+                NavigableMap<YearMonth, Sale> sales = new TreeMap<>();
+                NavigableMap<YearMonth, Float> coefficients = new TreeMap<>();
 
-                TreeSet<Sale> sales = yearMonthPercentMap.entrySet().stream().map(yearMonthPercent -> {
-                    YearMonth yearMonth = yearMonthPercent.getKey();
-                    Float percent = yearMonthPercent.getValue();
+                yearMonthPercentMap.forEach((yearMonth, percent) -> {
                     Sale sale = new Sale();
-                    sale.setYearMonth(yearMonth);
                     Integer quantityByYearMonth = yearMonthSumQuantityMap.get(yearMonth);
                     int quantity = Math.round(quantityByYearMonth * (percent / 100f));
-                    sale.setQuantity(quantity);
-                    return sale;
-                }).collect(Collectors.toCollection(TreeSet::new));
-                smartphone.setExpectedSales(sales);
+                    sale.setExpectedQuantity(quantity);
+                    sales.put(yearMonth, sale);
+                    coefficients.put(yearMonth, 1.0f);
+                });
+
+                smartphone.setSales(sales);
+                smartphone.setCoefficients(coefficients);
                 return smartphone;
 
             }).collect(Collectors.toList());
-
-//            SmartphoneDto[] smartphoneDtos = mapper.readValue(new File("response-data-export.json"), SmartphoneDto[].class);
-//            List<Smartphone> smartphones = Arrays.stream(smartphoneDtos).map(smartphoneDto -> {
-//
-//                String deviceModel = smartphoneDto.getDeviceModel();
-//                float popularity = smartphoneDto.getPopularity();
-//                String brand = StringUtils.substringBefore(deviceModel, StringUtils.SPACE);
-//                String model = StringUtils.substringAfter(deviceModel, StringUtils.SPACE);
-//
-//                Smartphone smartphone = new Smartphone();
-//                smartphone.setBrand(brand);
-//                smartphone.setModel(model);
-//
-//                SortedSet<Sale> expectedSales = yearMonthSumQuantityMap.entrySet().stream().map(yearMonthSumQuantity -> {
-//                    Sale sale = new Sale();
-//                    sale.setYearMonth(yearMonthSumQuantity.getKey());
-//                    int regionQuantity = Math.round(yearMonthSumQuantity.getValue() * (popularity / 100f));
-//                    sale.setQuantity(regionQuantity);
-//                    return sale;
-//                }).collect(Collectors.toCollection(TreeSet::new));
-//
-//                smartphone.setExpectedSales(expectedSales);
-//                return smartphone;
-//            }).collect(Collectors.toList());
 
             smartphoneRepository.deleteAll();
             smartphoneRepository.insert(smartphones);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public SortedSet<BrandModelProjection> getBrandModels() {
-        return smartphoneRepository.findAllBy(BrandModelProjection.class);
-    }
-
-    public StatisticProjection getStatisticById(ObjectId objectId) {
-        StatisticProjection projection = smartphoneRepository.findByIdIs(objectId);
-        SortedSet<Sale> expectedSales = projection.getExpectedSales();
-        SortedMap<YearMonth, Float> currentCoefficients = projection.getCoefficients();
-
-        Map<YearMonth, Float> blankCoefficients = expectedSales.stream().map(Sale::getYearMonth)
-                .filter(Predicate.not(currentCoefficients::containsKey))
-                .collect(Collectors.toMap(o -> o, o -> 1.0f));
-        currentCoefficients.putAll(blankCoefficients);
-
-
-
-        Sale firstSale = projection.getExpectedSales().first();
-        SortedMap<YearMonth, Float> yearMonthCoefficientMap = currentCoefficients.tailMap(firstSale.getYearMonth());
-
-        TreeSet<Sale> calculatedSales = new TreeSet<>();
-        calculatedSales.add(firstSale);
-
-
-        yearMonthCoefficientMap.forEach((yearMonth, coefficient) -> {
-            Sale sale = new Sale();
-            sale.setYearMonth(yearMonth);
-            Sale leftSale = calculatedSales.floor(sale);
-            sale.setYearMonth(yearMonth);
-            sale.setQuantity(Math.round(leftSale.getQuantity() * coefficient));
-            calculatedSales.add(sale);
-        });
-
-
-        SortedSet<Sale> customCoefficientSales = projection.getCalculatedSales();
-        customCoefficientSales.clear();
-        customCoefficientSales.addAll(calculatedSales);
-        return projection;
-    }
-
-    public void updateCoefficients(Smartphone smartphone) {
-        Query query = Query.query(Criteria.where("_id").is(smartphone.getId()));
-        Update update = Update.update("coefficients", smartphone.getCoefficients());
-        mongoOperations.updateFirst(query, update, Smartphone.class);
     }
 }

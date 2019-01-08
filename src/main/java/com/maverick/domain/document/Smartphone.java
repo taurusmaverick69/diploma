@@ -9,10 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.threeten.extra.YearQuarter;
 
 import java.time.YearMonth;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode(of = {"brand", "model"})
@@ -25,14 +22,11 @@ public class Smartphone {
     private String model;
     private Double price;
     private Integer releaseYear;
-    private Double rating;
+    private float rating = 4.0f;
     private Integer quantity;
     private Boolean isTracked;
-
-    private SortedSet<Sale> expectedSales;
-    private SortedSet<Sale> calculatedSales;
-
-    private SortedMap<YearMonth, Float> coefficients = new TreeMap<>();
+    private NavigableMap<YearMonth, Sale> sales;
+    private NavigableMap<YearMonth, Float> coefficients = new TreeMap<>();
 
     public static final Map<YearQuarter, Map<String, Integer>> YEAR_QUARTER_SMARTPHONE_QUANTITY_MAP = Map.of(
             YearQuarter.of(2017, 1),
