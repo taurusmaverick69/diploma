@@ -9,7 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.threeten.extra.YearQuarter;
 
 import java.time.YearMonth;
-import java.util.*;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 @Data
 @EqualsAndHashCode(of = {"brand", "model"})
@@ -22,9 +24,9 @@ public class Smartphone {
     private String model;
     private Double price;
     private Integer releaseYear;
-    private float rating = 4.0f;
     private Integer quantity;
     private Boolean isTracked;
+    private NavigableMap<YearMonth, Float> ratings;
     private NavigableMap<YearMonth, Sale> sales;
     private NavigableMap<YearMonth, Float> coefficients = new TreeMap<>();
 

@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.time.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -38,6 +36,9 @@ import static java.time.Month.*;
 
 @Service
 public class SmartphoneService {
+
+    public static final float DEFAULT_SEASON_COEFFICIENT = 1.0f;
+    public static final float DEFAULT_RATING = 4.0f;
 
     @Autowired
     private SmartphoneRepository smartphoneRepository;
@@ -80,9 +81,9 @@ public class SmartphoneService {
         return smartphoneRepository.findAllBy(BrandModelProjection.class);
     }
 
-    public StatisticProjection getStatisticById(ObjectId objectId) {
+    public StatisticProjection getStatisticById(ObjectId objectId, boolean isRatingEnabled, boolean isSeasonEnabled) {
         StatisticProjection projection = smartphoneRepository.findByIdIs(objectId);
-        projection.setCustomCoefficientsSales();
+        projection.setCustomCoefficientsSales(isRatingEnabled, isSeasonEnabled);
         projection.setMovingAverageSales();
         return projection;
     }
@@ -91,7 +92,7 @@ public class SmartphoneService {
         Query query = Query.query(Criteria.where("_id").is(smartphone.getId()));
         Update update = new Update()
                 .set("coefficients", smartphone.getCoefficients())
-                .set("rating", smartphone.getRating());
+                .set("ratings", smartphone.getRatings());
         mongoOperations.updateFirst(query, update, Smartphone.class);
     }
 
@@ -180,6 +181,7 @@ public class SmartphoneService {
 
                 NavigableMap<YearMonth, Sale> sales = new TreeMap<>();
                 NavigableMap<YearMonth, Float> coefficients = new TreeMap<>();
+                NavigableMap<YearMonth, Float> ratings = new TreeMap<>();
 
                 yearMonthPercentMap.forEach((yearMonth, percent) -> {
                     Sale sale = new Sale();
@@ -187,11 +189,13 @@ public class SmartphoneService {
                     int quantity = Math.round(quantityByYearMonth * (percent / 100f));
                     sale.setExpectedQuantity(quantity);
                     sales.put(yearMonth, sale);
-                    coefficients.put(yearMonth, 1.0f);
+                    coefficients.put(yearMonth, DEFAULT_SEASON_COEFFICIENT);
+                    ratings.put(yearMonth, DEFAULT_RATING);
                 });
 
                 smartphone.setSales(sales);
                 smartphone.setCoefficients(coefficients);
+                smartphone.setRatings(ratings);
                 return smartphone;
 
             }).collect(Collectors.toList());

@@ -29,27 +29,61 @@
 <main>
     <div class="row">
         <div>
-            <h3 class="center-align" th:text="|${statistic.brand} ${statistic.model}| + ' statistics'"></h3>
+            <h5 class="center-align" th:text="|${statistic.brand} ${statistic.model}| + ' statistics'"></h5>
         </div>
         <div class="col s6">
-            <form action="#" th:action="@{/smartphone}" th:object="${statistic}" th:method="put">
+            <form action="#" th:action="@{/smartphone(isRatingEnabled=${param.isRatingEnabled}, isSeasonEnabled=${param.isSeasonEnabled})}" th:object="${statistic}" th:method="put">
                 <input th:type="hidden" th:field="${statistic.id}"/>
                 <div class="row">
-                    <div class="input-field col s4 offset-s4">
-                        <label th:for="rating">Rating</label>
-                        <input th:id="rating" th:field="${statistic.rating}" th:value="${statistic.rating}" type="number" step="0.01" class="validate" required="required" min="0.0" max="5.0">
-                        <span class="helper-text" data-error="wrong" data-success="right"/>
+                    <div class="row">
+                        <!--<p th:text="${param.isRatingEnabled != null} ? ${param.isRatingEnabled} : true">TEST</p>-->
+                        <p class="col s4 offset-s4">
+                        <!--<p th:text="#bools."></p>-->
+                            <label>
+                                <input type="checkbox" class="filled-in"
+                                       th:id="rating_check"
+                                       th:checked="${#strings.equals(param.isRatingEnabled, 'true')} ? 'checked'"
+                                       th:onclick="'javascript:reloadPage();'"
+                                />
+                                <span>Rating</span>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="row">
+                        <div class="col s4" th:each="entry : ${statistic.ratings}">
+                            <div class="col s12">
+                                <!--This is an inline input field:-->
+                                <div class="input-field inline">
+                                    <label th:for="${entry.key}" th:text="${entry.key}">example</label>
+                                    <input th:id="${entry.key}" th:field="*{ratings[__${entry.key}__]}" th:value="${entry.value}" type="number" step="0.01" class="validate" required="required" min="0.0" max="5.0"/>
+                                    <span class="helper-text" data-error="wrong" data-success="right"/>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
-
-                    <div class="col s4" th:each="entry : ${statistic.coefficients}">
-                        <div class="col s12">
-                            <!--This is an inline input field:-->
-                            <div class="input-field inline">
-                                <label th:for="${entry.key}" th:text="${entry.key}">example</label>
-                                <input th:id="${entry.key}" th:field="*{coefficients[__${entry.key}__]}" th:value="${entry.value}" type="number" step="0.01" class="validate" required="required"/>
-                                <span class="helper-text" data-error="wrong" data-success="right"/>
+                    <div class="row">
+                        <p class="col s4 offset-s4">
+                            <label>
+                                <input type="checkbox" class="filled-in"
+                                       th:id="season_check"
+                                       th:checked="${#strings.equals(param.isSeasonEnabled, 'true')} ? 'checked'"
+                                       th:onclick="'javascript:reloadPage();'"
+                                />
+                                <span>Season coefficients</span>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="row">
+                        <div class="col s4" th:each="entry : ${statistic.coefficients}">
+                            <div class="col s12">
+                                <!--This is an inline input field:-->
+                                <div class="input-field inline">
+                                    <label th:for="${entry.key}" th:text="${entry.key}">example</label>
+                                    <input th:id="${entry.key}" th:field="*{coefficients[__${entry.key}__]}" th:value="${entry.value}" type="number" step="0.01" class="validate" required="required"/>
+                                    <span class="helper-text" data-error="wrong" data-success="right"/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -61,6 +95,54 @@
         </div>
         <div class="col s6">
             <canvas id="myChart"></canvas>
+
+
+            <ul class="collapsible expandable">
+                <li>
+                    <div class="collapsible-header">Moving average evaluation</div>
+                    <div class="collapsible-body">
+                        <table>
+                        <thead>
+                        <tr>
+                            <th>Year Quarter</th>
+                            <th>Could sold</th>
+                            <th>Redundant sold</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="entry:${statistic.movingAverageMethodEvaluation}">
+                            <td th:text="${entry.key}"/>
+                            <td th:text="${entry.value.first}"/>
+                            <td th:text="${entry.value.second}"/>
+                        </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </li>
+                <li>
+                    <div class="collapsible-header">Custom coefficients evaluation</div>
+                    <div class="collapsible-body">
+                        <table>
+                        <thead>
+                        <tr>
+                            <th>Year Quarter</th>
+                            <th>Could sold</th>
+                            <th>Redundant sold</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="entry:${statistic.customCoefficientsMethodEvaluation}">
+                            <td th:text="${entry.key}"/>
+                            <td th:text="${entry.value.first}"/>
+                            <td th:text="${entry.value.second}"/>
+                        </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </li>
+            </ul>
+
+
         </div>
     </div>
 </main>
@@ -71,9 +153,27 @@
 <!--@formatter:off-->
 
 <script th:inline="javascript">
+
+
+
     /*<![CDATA[*/
+
+    function reloadPage() {
+        var id = [[${statistic.id.toString()}]];
+        var isRatingEnabled = document.getElementById('rating_check').checked;
+        var isSeasonEnabled = document.getElementById('season_check').checked;
+        var href = 'http://localhost:8080/smartphone/sales?id='+id+'&isRatingEnabled='+isRatingEnabled+'&isSeasonEnabled='+isSeasonEnabled;
+        console.log(href);
+        window.location.href = href;
+    }
+
     var myChart = null;
     document.addEventListener('DOMContentLoaded', function () {
+        var elem = document.querySelector('.collapsible.expandable');
+        var instance = M.Collapsible.init(elem, {
+            accordion: false
+        });
+
         var sales = /*[[${statistic.sales}]]*/;
 
         var yearMonths = Object.keys(sales);

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 @RequestMapping("/smartphone")
@@ -29,18 +30,26 @@ public class SmartphoneController {
         smartphoneService.updateTracking(id, isTracked);
     }
 
-    @GetMapping(value = "/sales", params = "id")
-    public String getStatisticById(Model model, @RequestParam String id) {
+    @GetMapping("/sales")
+    public String getStatisticById(Model model,
+                                   @RequestParam String id,
+                                   @RequestParam boolean isRatingEnabled,
+                                   @RequestParam boolean isSeasonEnabled) {
         ObjectId objectId = new ObjectId(id);
-        StatisticProjection statistic = smartphoneService.getStatisticById(objectId);
+        StatisticProjection statistic = smartphoneService.getStatisticById(objectId, isRatingEnabled, isSeasonEnabled);
         model.addAttribute("statistic", statistic);
         return "statistic";
     }
 
     @PutMapping
-    public String update(@ModelAttribute Smartphone smartphone) {
+    public String update(@ModelAttribute Smartphone smartphone,
+                         @RequestParam boolean isRatingEnabled,
+                         @RequestParam boolean isSeasonEnabled) {
         smartphoneService.update(smartphone);
-        return "redirect:/smartphone/sales?id=" + smartphone.getId();
+        return UriComponentsBuilder.fromPath("redirect:/smartphone/sales")
+                .queryParam("id", smartphone.getId())
+                .queryParam("isRatingEnabled", isRatingEnabled)
+                .queryParam("isSeasonEnabled", isSeasonEnabled).toUriString();
     }
 
     @GetMapping("/reset")
