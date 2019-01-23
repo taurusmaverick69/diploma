@@ -81,10 +81,9 @@ public class SmartphoneService {
         return smartphoneRepository.findAllBy(BrandModelProjection.class);
     }
 
-    public StatisticProjection getStatisticById(ObjectId objectId, boolean isRatingEnabled, boolean isSeasonEnabled) {
+    public StatisticProjection getCoefficientStatisticById(ObjectId objectId, boolean isRatingEnabled, boolean isSeasonEnabled) {
         StatisticProjection projection = smartphoneRepository.findByIdIs(objectId);
-        projection.setCustomCoefficientsSales(isRatingEnabled, isSeasonEnabled);
-        projection.setMovingAverageSales();
+        projection.setCustomCoefficientsSales();
         return projection;
     }
 

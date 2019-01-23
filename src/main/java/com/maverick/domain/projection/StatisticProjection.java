@@ -21,11 +21,13 @@ public class StatisticProjection {
     ObjectId id;
     String brand;
     String model;
+    Double price = 500.0;
     NavigableMap<YearMonth, Float> ratings;
     NavigableMap<YearMonth, Sale> sales;
     NavigableMap<YearMonth, Float> coefficients;
 
-    public void setCustomCoefficientsSales(boolean isRatingEnabled, boolean isSeasonEnabled) {
+
+    public void setCustomCoefficientsSales() {
         Map.Entry<YearMonth, Sale> firstSaleEntry = sales.firstEntry();
         YearMonth firstYearMonth = firstSaleEntry.getKey();
         Sale firstSale = firstSaleEntry.getValue();
@@ -33,7 +35,10 @@ public class StatisticProjection {
         Map.Entry<YearMonth, Float> firstRatingEntry = ratings.firstEntry();
         Float firstRating = firstRatingEntry.getValue();
 
-        firstSale.setCustomCoefficientQuantity(Math.round(firstSale.getExpectedQuantity()));
+        firstSale.setCustomCoefficientDisabledQuantity(Math.round(firstSale.getExpectedQuantity()));
+        firstSale.setCustomCoefficientRatingEnabledQuantity(Math.round(firstSale.getExpectedQuantity()));
+        firstSale.setCustomCoefficientSeasonEnabledOnlyQuantity(Math.round(firstSale.getExpectedQuantity()));
+        firstSale.setCustomCoefficientEnabledQuantity(Math.round(firstSale.getExpectedQuantity()));
 
         SortedMap<YearMonth, Float> yearMonthCoefficientMap = coefficients.tailMap(firstYearMonth, false);
         yearMonthCoefficientMap.forEach((yearMonth, coefficient) -> {
@@ -41,11 +46,36 @@ public class StatisticProjection {
             Sale currentSale = sales.get(yearMonth);
             float rating = ratings.get(yearMonth);
 
-            rating = isRatingEnabled ? rating : DEFAULT_RATING;
-            coefficient = isSeasonEnabled ? coefficient : DEFAULT_SEASON_COEFFICIENT;
-            currentSale.setCustomCoefficientQuantity(Math.round(leftSale.getCustomCoefficientQuantity() * coefficient * rating * RATING_MULTIPLIER));
+
+            currentSale.setCustomCoefficientDisabledQuantity(Math.round(leftSale.getCustomCoefficientDisabledQuantity() * DEFAULT_SEASON_COEFFICIENT * DEFAULT_RATING * RATING_MULTIPLIER));
+            currentSale.setCustomCoefficientRatingEnabledQuantity(Math.round(leftSale.getCustomCoefficientRatingEnabledQuantity() * DEFAULT_SEASON_COEFFICIENT * rating * RATING_MULTIPLIER));
+            currentSale.setCustomCoefficientSeasonEnabledOnlyQuantity(Math.round(leftSale.getCustomCoefficientSeasonEnabledOnlyQuantity() * coefficient * DEFAULT_RATING * RATING_MULTIPLIER));
+            currentSale.setCustomCoefficientEnabledQuantity(Math.round(leftSale.getCustomCoefficientEnabledQuantity() * coefficient * rating * RATING_MULTIPLIER));
         });
     }
+
+
+//    public void setCustomCoefficientsSales(boolean isRatingEnabled, boolean isSeasonEnabled) {
+//        Map.Entry<YearMonth, Sale> firstSaleEntry = sales.firstEntry();
+//        YearMonth firstYearMonth = firstSaleEntry.getKey();
+//        Sale firstSale = firstSaleEntry.getValue();
+//
+//        Map.Entry<YearMonth, Float> firstRatingEntry = ratings.firstEntry();
+//        Float firstRating = firstRatingEntry.getValue();
+//
+//        firstSale.setCustomCoefficientDisabledQuantity(Math.round(firstSale.getExpectedQuantity()));
+//
+//        SortedMap<YearMonth, Float> yearMonthCoefficientMap = coefficients.tailMap(firstYearMonth, false);
+//        yearMonthCoefficientMap.forEach((yearMonth, coefficient) -> {
+//            Sale leftSale = sales.lowerEntry(yearMonth).getValue();
+//            Sale currentSale = sales.get(yearMonth);
+//            float rating = ratings.get(yearMonth);
+//
+//            rating = isRatingEnabled ? rating : DEFAULT_RATING;
+//            coefficient = isSeasonEnabled ? coefficient : DEFAULT_SEASON_COEFFICIENT;
+//            currentSale.setCustomCoefficientDisabledQuantity(Math.round(leftSale.getCustomCoefficientDisabledQuantity() * coefficient * rating * RATING_MULTIPLIER));
+//        });
+//    }
 
     public void setMovingAverageSales() {
         List<Sale> sales = List.copyOf(this.sales.values());
@@ -78,38 +108,64 @@ public class StatisticProjection {
                 ));
     }
 
-    public Map<YearQuarter, Pair<Integer, Integer>> getCustomCoefficientsMethodEvaluation() {
-        return sales.entrySet().stream().collect(Collectors.groupingBy(o -> YearQuarter.from(o.getKey()),
-                Collectors.mapping(yearMonthSaleEntry -> {
-                    Sale sale = yearMonthSaleEntry.getValue();
-                    return sale.getCustomCoefficientQuantity() - sale.getExpectedQuantity();
-                }, Collectors.toList())))
+    public Map<String, SortedMap<YearQuarter, Map<String, Pair<? extends Number, ? extends Number>>>> getCustomCoefficientsMethodEvaluation() {
 
-                .entrySet().stream().collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        o -> getCouldRedundantSoldPair(o.getValue()), (v1, v2) -> {
-                            throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
-                        }, TreeMap::new
-                ));
+        Map<YearQuarter, List<Sale>> yearQuarterSalesMap = sales.entrySet().stream().collect(
+                Collectors.groupingBy(o -> YearQuarter.from(o.getKey()),
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+
+        SortedMap<YearQuarter, Map<String, Pair<? extends Number, ? extends Number>>> numberResult = new TreeMap<>();
+        SortedMap<YearQuarter, Map<String, Pair<? extends Number, ? extends Number>>> moneyResult = new TreeMap<>();
+
+        yearQuarterSalesMap.forEach((yearQuarter, sales) -> {
+            Map<String, List<Integer>> typeDiffsPairMap = new HashMap<>();
+            List<Integer> disabledDiffs = new ArrayList<>();
+            List<Integer> RatingOnlyDiffs = new ArrayList<>();
+            List<Integer> SeasonsOnlyDiffs = new ArrayList<>();
+            List<Integer> RatingAndSeasonsDiffs = new ArrayList<>();
+            sales.forEach(sale -> {
+                disabledDiffs.add(sale.getCustomCoefficientDisabledQuantity() - sale.getExpectedQuantity());
+                RatingOnlyDiffs.add(sale.getCustomCoefficientRatingEnabledQuantity() - sale.getExpectedQuantity());
+                SeasonsOnlyDiffs.add(sale.getCustomCoefficientSeasonEnabledOnlyQuantity() - sale.getExpectedQuantity());
+                RatingAndSeasonsDiffs.add(sale.getCustomCoefficientEnabledQuantity() - sale.getExpectedQuantity());
+            });
+            typeDiffsPairMap.put("Disabled", disabledDiffs);
+            typeDiffsPairMap.put("RatingOnly", RatingOnlyDiffs);
+            typeDiffsPairMap.put("SeasonsOnly", SeasonsOnlyDiffs);
+            typeDiffsPairMap.put("Rating And Seasons", RatingAndSeasonsDiffs);
+
+            Map<String, Pair<? extends Number, ? extends Number>> typeNumberPairMap = new HashMap<>();
+            Map<String, Pair<? extends Number, ? extends Number>> typeMoneyPairMap = new HashMap<>();
+
+
+            typeDiffsPairMap.forEach((s, diffs) -> {
+                Pair<Integer, Integer> countPair = getCouldRedundantSoldPair(diffs);
+                typeNumberPairMap.put(s, countPair);
+
+                Pair<Double, Double> moneyPair = Pair.of(countPair.getFirst() * price * 0.02, countPair.getSecond() * 0.01);
+                typeMoneyPairMap.put(s, moneyPair);
+            });
+
+            numberResult.put(yearQuarter, typeNumberPairMap);
+            moneyResult.put(yearQuarter, typeMoneyPairMap);
+        });
+
+        return Map.of("Number", numberResult, "Money", moneyResult);
     }
 
     private Pair<Integer, Integer> getCouldRedundantSoldPair(List<Integer> differences) {
         int couldSold = 0;
-        int redundantSold = 0;
+        int redundantPurchase = 0;
 
         for (Integer difference : differences) {
             if (difference < 0) {
-                int compensated = difference + redundantSold;
-                if (compensated > 0) {
-                    redundantSold += difference;
-                } else {
-                    redundantSold = 0;
-                    couldSold += compensated;
-                }
+                couldSold += difference;
             } else {
-                redundantSold += difference;
+                redundantPurchase += difference;
             }
         }
-        return Pair.of(couldSold, redundantSold);
+        return Pair.of(couldSold, redundantPurchase);
     }
 }
+
+

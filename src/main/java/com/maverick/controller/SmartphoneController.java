@@ -31,14 +31,14 @@ public class SmartphoneController {
     }
 
     @GetMapping("/sales")
-    public String getStatisticById(Model model,
-                                   @RequestParam String id,
-                                   @RequestParam boolean isRatingEnabled,
-                                   @RequestParam boolean isSeasonEnabled) {
+    public String getCoefficientStatisticById(Model model,
+                                              @RequestParam String id,
+                                              @RequestParam boolean isRatingEnabled,
+                                              @RequestParam boolean isSeasonEnabled) {
         ObjectId objectId = new ObjectId(id);
-        StatisticProjection statistic = smartphoneService.getStatisticById(objectId, isRatingEnabled, isSeasonEnabled);
+        StatisticProjection statistic = smartphoneService.getCoefficientStatisticById(objectId, isRatingEnabled, isSeasonEnabled);
         model.addAttribute("statistic", statistic);
-        return "statistic";
+        return "coefficient_statistic";
     }
 
     @PutMapping
