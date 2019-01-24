@@ -26,7 +26,6 @@ public class StatisticProjection {
     NavigableMap<YearMonth, Sale> sales;
     NavigableMap<YearMonth, Float> coefficients;
 
-
     public void setCustomCoefficientsSales() {
         Map.Entry<YearMonth, Sale> firstSaleEntry = sales.firstEntry();
         YearMonth firstYearMonth = firstSaleEntry.getKey();
@@ -54,29 +53,6 @@ public class StatisticProjection {
         });
     }
 
-
-//    public void setCustomCoefficientsSales(boolean isRatingEnabled, boolean isSeasonEnabled) {
-//        Map.Entry<YearMonth, Sale> firstSaleEntry = sales.firstEntry();
-//        YearMonth firstYearMonth = firstSaleEntry.getKey();
-//        Sale firstSale = firstSaleEntry.getValue();
-//
-//        Map.Entry<YearMonth, Float> firstRatingEntry = ratings.firstEntry();
-//        Float firstRating = firstRatingEntry.getValue();
-//
-//        firstSale.setCustomCoefficientDisabledQuantity(Math.round(firstSale.getExpectedQuantity()));
-//
-//        SortedMap<YearMonth, Float> yearMonthCoefficientMap = coefficients.tailMap(firstYearMonth, false);
-//        yearMonthCoefficientMap.forEach((yearMonth, coefficient) -> {
-//            Sale leftSale = sales.lowerEntry(yearMonth).getValue();
-//            Sale currentSale = sales.get(yearMonth);
-//            float rating = ratings.get(yearMonth);
-//
-//            rating = isRatingEnabled ? rating : DEFAULT_RATING;
-//            coefficient = isSeasonEnabled ? coefficient : DEFAULT_SEASON_COEFFICIENT;
-//            currentSale.setCustomCoefficientDisabledQuantity(Math.round(leftSale.getCustomCoefficientDisabledQuantity() * coefficient * rating * RATING_MULTIPLIER));
-//        });
-//    }
-
     public void setMovingAverageSales() {
         List<Sale> sales = List.copyOf(this.sales.values());
 
@@ -93,22 +69,7 @@ public class StatisticProjection {
         }
     }
 
-    public Map<YearQuarter, Pair<Integer, Integer>> getMovingAverageMethodEvaluation() {
-        return sales.entrySet().stream().collect(Collectors.groupingBy(o -> YearQuarter.from(o.getKey()),
-                Collectors.mapping(yearMonthSaleEntry -> {
-                    Sale sale = yearMonthSaleEntry.getValue();
-                    return sale.getMovingAverageQuantity() - sale.getExpectedQuantity();
-                }, Collectors.toList())))
-
-                .entrySet().stream().collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        o -> getCouldRedundantSoldPair(o.getValue()), (v1, v2) -> {
-                            throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
-                        }, TreeMap::new
-                ));
-    }
-
-    public Map<String, SortedMap<YearQuarter, Map<String, Pair<? extends Number, ? extends Number>>>> getCustomCoefficientsMethodEvaluation() {
+    public Map<String, SortedMap<YearQuarter, Map<String, Pair<? extends Number, ? extends Number>>>> getMethodEvaluation() {
 
         Map<YearQuarter, List<Sale>> yearQuarterSalesMap = sales.entrySet().stream().collect(
                 Collectors.groupingBy(o -> YearQuarter.from(o.getKey()),
@@ -119,16 +80,21 @@ public class StatisticProjection {
 
         yearQuarterSalesMap.forEach((yearQuarter, sales) -> {
             Map<String, List<Integer>> typeDiffsPairMap = new HashMap<>();
+            List<Integer> movingAverageDiffs = new ArrayList<>();
             List<Integer> disabledDiffs = new ArrayList<>();
             List<Integer> RatingOnlyDiffs = new ArrayList<>();
             List<Integer> SeasonsOnlyDiffs = new ArrayList<>();
             List<Integer> RatingAndSeasonsDiffs = new ArrayList<>();
+
             sales.forEach(sale -> {
+                movingAverageDiffs.add(sale.getMovingAverageQuantity() - sale.getExpectedQuantity());
                 disabledDiffs.add(sale.getCustomCoefficientDisabledQuantity() - sale.getExpectedQuantity());
                 RatingOnlyDiffs.add(sale.getCustomCoefficientRatingEnabledQuantity() - sale.getExpectedQuantity());
                 SeasonsOnlyDiffs.add(sale.getCustomCoefficientSeasonEnabledOnlyQuantity() - sale.getExpectedQuantity());
                 RatingAndSeasonsDiffs.add(sale.getCustomCoefficientEnabledQuantity() - sale.getExpectedQuantity());
             });
+
+            typeDiffsPairMap.put("Moving average", movingAverageDiffs);
             typeDiffsPairMap.put("Disabled", disabledDiffs);
             typeDiffsPairMap.put("RatingOnly", RatingOnlyDiffs);
             typeDiffsPairMap.put("SeasonsOnly", SeasonsOnlyDiffs);
@@ -137,12 +103,11 @@ public class StatisticProjection {
             Map<String, Pair<? extends Number, ? extends Number>> typeNumberPairMap = new HashMap<>();
             Map<String, Pair<? extends Number, ? extends Number>> typeMoneyPairMap = new HashMap<>();
 
-
             typeDiffsPairMap.forEach((s, diffs) -> {
                 Pair<Integer, Integer> countPair = getCouldRedundantSoldPair(diffs);
                 typeNumberPairMap.put(s, countPair);
 
-                Pair<Double, Double> moneyPair = Pair.of(countPair.getFirst() * price * 0.02, countPair.getSecond() * 0.01);
+                Pair<Double, Double> moneyPair = Pair.of(countPair.getFirst()  * 0.02 * price, countPair.getSecond() * 4.0);
                 typeMoneyPairMap.put(s, moneyPair);
             });
 

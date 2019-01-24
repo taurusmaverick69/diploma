@@ -38,7 +38,7 @@ public class SmartphoneController {
         ObjectId objectId = new ObjectId(id);
         StatisticProjection statistic = smartphoneService.getCoefficientStatisticById(objectId, isRatingEnabled, isSeasonEnabled);
         model.addAttribute("statistic", statistic);
-        return "coefficient_statistic";
+        return "statistic";
     }
 
     @PutMapping

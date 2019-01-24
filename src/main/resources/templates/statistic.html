@@ -94,6 +94,8 @@
                     </div>
                 </div>
             </div>
+
+
             <button class="fixed-action-btn btn-floating btn-large cyan" type="submit" name="action">
                 <i class="material-icons">save</i>
             </button>
@@ -112,6 +114,7 @@
                 <thead>
                 <tr>
                     <th>Year Quarter</th>
+                    <th>Moving average</th>
                     <th>Disabled</th>
                     <th>Rating Only</th>
                     <th>Seasons Only</th>
@@ -119,8 +122,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="entry:${statistic.customCoefficientsMethodEvaluation.get('Number')}">
+                <tr th:each="entry:${statistic.methodEvaluation.get('Number')}">
                     <td th:text="${entry.key}"></td>
+                    <td th:text="'<' + ${entry.value.get('Moving average').first} + '_' + ${entry.value.get('Moving average').second} + '>'"></td>
                     <td th:text="'<' + ${entry.value.get('Disabled').first} + '_' + ${entry.value.get('Disabled').second} + '>'"></td>
                     <td th:text="'<' + ${entry.value.get('RatingOnly').first} + '_' + ${entry.value.get('RatingOnly').second} + '>'"></td>
                     <td th:text="'<' + ${entry.value.get('SeasonsOnly').first} + '_' + ${entry.value.get('SeasonsOnly').second} + '>'"></td>
@@ -128,42 +132,10 @@
                 </tr>
                 </tbody>
             </table>
-
-            <!--<ul class="collapsible expandable">-->
-            <!--<li>-->
-            <!--<div class="collapsible-header">Moving average evaluation</div>-->
-            <!--<div class="collapsible-body">-->
-            <!--<table>-->
-            <!--<thead>-->
-            <!--<tr>-->
-            <!--<th>Year Quarter</th>-->
-            <!--<th>Could sold</th>-->
-            <!--<th>Redundant purchase</th>-->
-            <!--</tr>-->
-            <!--</thead>-->
-            <!--<tbody>-->
-            <!--<tr th:each="entry:${statistic.movingAverageMethodEvaluation}">-->
-            <!--<td th:text="${entry.key}"></td>-->
-            <!--<td th:text="${entry.value.first}"></td>-->
-            <!--<td th:text="${entry.value.second}"></td>-->
-            <!--</tr>-->
-            <!--</tbody>-->
-            <!--</table>-->
-            <!--</div>-->
-            <!--</li>-->
-            <!--<li>-->
-            <!--<div class="collapsible-header">Custom coefficients evaluation</div>-->
-            <!--<div class="collapsible-body">-->
-            <!---->
-            <!--</div>-->
-            <!--</li>-->
-            <!--</ul>-->
         </div>
         <div class="col s6">
             <canvas id="moneyChart"></canvas>
         </div>
-
-
     </div>
 </main>
 <!--<footer>-->
@@ -225,8 +197,15 @@
             borderWidth: 3
         };
 
+        var movingAverageDataset = {
+            label: 'Moving average statistic',
+            data: movingAverageQuantities,
+            borderColor: 'black',
+            backgroundColor: 'transparent',
+            borderWidth: 1
+        };
 
-        var customCoefficientDisabled = {
+        var customCoefficientDisabledDataset = {
             label: 'Disabled',
             data: customCoefficientDisabledQuantities,
             borderColor: 'red',
@@ -234,7 +213,7 @@
             borderWidth: 1
         };
 
-        var customCoefficientRatingEnabled = {
+        var customCoefficientRatingEnabledDataset = {
             label: 'Rating only',
             data: customCoefficientRatingEnabledQuantities,
             borderColor: 'purple',
@@ -242,7 +221,7 @@
             borderWidth: 1
         };
 
-        var customCoefficientSeasonEnabled = {
+        var customCoefficientSeasonEnabledDataset = {
             label: 'Seasons only',
             data: customCoefficientSeasonEnabledOnlyQuantities,
             borderColor: 'orange',
@@ -250,21 +229,13 @@
             borderWidth: 1
         };
 
-        var customCoefficientEnabledQuantity = {
+        var customCoefficientEnabledQuantityDataset = {
             label: 'Rating & seasons',
             data: customCoefficientEnabledQuantities,
             borderColor: 'blue',
             backgroundColor: 'transparent',
             borderWidth: 1
         };
-
-        // var movingAverageDataset = {
-        //     label: 'Moving average statistic',
-        //     data: movingAverageQuantities,
-        //     borderColor: 'blue',
-        //     backgroundColor: 'transparent',
-        //     borderWidth: 1
-        // };
 
         var options = {
             // scales: {
@@ -281,16 +252,29 @@
                 type: 'line',
                 data: {
                     labels: yearMonths,
-                    datasets: [expectedDataset, customCoefficientDisabled, customCoefficientRatingEnabled, customCoefficientSeasonEnabled, customCoefficientEnabledQuantity]
+                    datasets: [
+                        expectedDataset,
+                        movingAverageDataset,
+                        customCoefficientDisabledDataset,
+                        customCoefficientRatingEnabledDataset,
+                        customCoefficientSeasonEnabledDataset,
+                        customCoefficientEnabledQuantityDataset
+                    ]
                 },
                 options: options
             });
         } else {
             salesChart.data.labels = yearMonths;
-            salesChart.data.datasets = [expectedDataset, customCoefficientDisabled, customCoefficientRatingEnabled, customCoefficientSeasonEnabled, customCoefficientEnabledQuantity];
+            salesChart.data.datasets = [
+                expectedDataset,
+                movingAverageDataset,
+                customCoefficientDisabledDataset,
+                customCoefficientRatingEnabledDataset,
+                customCoefficientSeasonEnabledDataset,
+                customCoefficientEnabledQuantityDataset
+            ];
             salesChart.update();
         }
-
     });
 
     var moneyChart = null;
@@ -300,19 +284,22 @@
             accordion: false
         });
 
-        var sales = /*[[${statistic.customCoefficientsMethodEvaluation}]]*/;
+        var sales = /*[[${statistic.methodEvaluation}]]*/;
 
         var moneyDataMap = sales["Money"];
 
         var yearMonths = Object.keys(moneyDataMap);
         var moneyData = Object.values(moneyDataMap);
 
+        let movingAverageData = moneyData.map(moneyDataPair => {
+            var test = moneyDataPair ['Moving average']
+            return  test.second - test.first
+        });
 
         let disabledData = moneyData.map(moneyDataPair => {
             var test = moneyDataPair ['Disabled']
             return  test.second - test.first
         });
-
         let ratingData = moneyData.map(moneyDataPair => {
             var test = moneyDataPair ['RatingOnly']
             return  test.second - test.first
@@ -327,13 +314,16 @@
         });
 
 
-
-
         var ctx = document.getElementById("moneyChart").getContext('2d');
 
         var data = {
             labels: yearMonths,
             datasets: [
+                {
+                    label: "Moving average",
+                    backgroundColor: "black",
+                    data: movingAverageData
+                },
                 {
                     label: "Disabled",
                     backgroundColor: "red",
@@ -357,7 +347,6 @@
             ]
         };
 
-
         if (moneyChart == null) {
             moneyChart = new Chart(ctx, {
                 type: 'bar',
@@ -375,7 +364,32 @@
             });
         } else {
             moneyChart.data.labels = yearMonths;
-            moneyChart.data.datasets = [expectedDataset, customCoefficientsDataset];
+            moneyChart.data.datasets = [
+                {
+                label: "Moving average",
+                backgroundColor: "black",
+                data: movingAverageData
+            },
+                {
+                    label: "Disabled",
+                    backgroundColor: "red",
+                    data: disabledData
+                },
+                {
+                    label: "Rating only",
+                    backgroundColor: "purple",
+                    data: ratingData
+                },
+                {
+                    label: "Seasons only",
+                    backgroundColor: "orange",
+                    data: seasonsData
+                },
+                {
+                    label: "Rating & seasons",
+                    backgroundColor: "blue",
+                    data: ratingAndSeasonsData
+                }];
             moneyChart.update();
         }
 

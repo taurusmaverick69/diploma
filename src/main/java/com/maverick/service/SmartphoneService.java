@@ -84,6 +84,7 @@ public class SmartphoneService {
     public StatisticProjection getCoefficientStatisticById(ObjectId objectId, boolean isRatingEnabled, boolean isSeasonEnabled) {
         StatisticProjection projection = smartphoneRepository.findByIdIs(objectId);
         projection.setCustomCoefficientsSales();
+        projection.setMovingAverageSales();
         return projection;
     }
 
