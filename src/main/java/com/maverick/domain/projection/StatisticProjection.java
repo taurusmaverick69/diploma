@@ -107,7 +107,7 @@ public class StatisticProjection {
                 Pair<Integer, Integer> countPair = getCouldRedundantSoldPair(diffs);
                 typeNumberPairMap.put(s, countPair);
 
-                Pair<Double, Double> moneyPair = Pair.of(countPair.getFirst()  * 0.02 * price, countPair.getSecond() * 4.0);
+                Pair<Double, Double> moneyPair = Pair.of(Math.abs(countPair.getFirst())  * 0.02 * price, countPair.getSecond() * 4.0);
                 typeMoneyPairMap.put(s, moneyPair);
             });
 

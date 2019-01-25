@@ -31,29 +31,29 @@
         <div>
             <h3 class="center-align" th:text="|${statistic.brand} ${statistic.model}| + ' statistics'"></h3>
         </div>
+        <div class="col s6">
+            <form action="#"
+                  th:action="@{/smartphone(isRatingEnabled=${param.isRatingEnabled}, isSeasonEnabled=${param.isSeasonEnabled})}"
+                  th:object="${statistic}" th:method="put">
+                <input th:type="hidden" th:field="${statistic.id}"/>
 
-        <form action="#"
-              th:action="@{/smartphone(isRatingEnabled=${param.isRatingEnabled}, isSeasonEnabled=${param.isSeasonEnabled})}"
-              th:object="${statistic}" th:method="put">
-            <input th:type="hidden" th:field="${statistic.id}"/>
+                <div class="col s6">
+                    <div class="row">
+                        <!--<p th:text="${param.isRatingEnabled != null} ? ${param.isRatingEnabled} : true">TEST</p>-->
+                        <p class="col s4 offset-s4">
+                            <label>
+                                <input type="checkbox" class="filled-in"
+                                       th:id="rating_check"
+                                       th:checked="${#strings.equals(param.isRatingEnabled, 'true')} ? 'checked'"
+                                       th:onclick="'javascript:reloadPage();'"
+                                />
+                                <span>Rating</span>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="row">
+                        <div class="col s4" th:each="entry : ${statistic.ratings}">
 
-            <div class="col s3">
-                <div class="row">
-                    <!--<p th:text="${param.isRatingEnabled != null} ? ${param.isRatingEnabled} : true">TEST</p>-->
-                    <p class="col s4 offset-s4">
-                        <label>
-                            <input type="checkbox" class="filled-in"
-                                   th:id="rating_check"
-                                   th:checked="${#strings.equals(param.isRatingEnabled, 'true')} ? 'checked'"
-                                   th:onclick="'javascript:reloadPage();'"
-                            />
-                            <span>Rating</span>
-                        </label>
-                    </p>
-                </div>
-                <div class="row">
-                    <div class="col s4" th:each="entry : ${statistic.ratings}">
-                        <div class="col s12">
                             <!--This is an inline input field:-->
                             <div class="input-field inline">
                                 <label th:for="${entry.key}" th:text="${entry.key}">example</label>
@@ -62,26 +62,26 @@
                                        required="required" min="0.0" max="5.0"/>
                                 <span class="helper-text" data-error="wrong" data-success="right"></span>
                             </div>
+
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col s3">
-                <div class="row">
-                    <p class="col s4 offset-s4">
-                        <label>
-                            <input type="checkbox" class="filled-in"
-                                   th:id="season_check"
-                                   th:checked="${#strings.equals(param.isSeasonEnabled, 'true')} ? 'checked'"
-                                   th:onclick="'javascript:reloadPage();'"
-                            />
-                            <span>Season</span>
-                        </label>
-                    </p>
-                </div>
-                <div class="row">
-                    <div class="col s4" th:each="entry : ${statistic.coefficients}">
-                        <div class="col s12">
+                <div class="col s6">
+                    <div class="row">
+                        <p class="col s4 offset-s4">
+                            <label>
+                                <input type="checkbox" class="filled-in"
+                                       th:id="season_check"
+                                       th:checked="${#strings.equals(param.isSeasonEnabled, 'true')} ? 'checked'"
+                                       th:onclick="'javascript:reloadPage();'"
+                                />
+                                <span>Season</span>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="row">
+                        <div class="col s4" th:each="entry : ${statistic.coefficients}">
+
                             <!--This is an inline input field:-->
                             <div class="input-field inline">
                                 <label th:for="${entry.key}" th:text="${entry.key}">example</label>
@@ -90,18 +90,17 @@
                                        required="required"/>
                                 <span class="helper-text" data-error="wrong" data-success="right"></span>
                             </div>
+
                         </div>
                     </div>
                 </div>
-            </div>
 
+                <button class="fixed-action-btn btn-floating btn-large cyan" type="submit" name="action">
+                    <i class="material-icons">save</i>
+                </button>
 
-            <button class="fixed-action-btn btn-floating btn-large cyan" type="submit" name="action">
-                <i class="material-icons">save</i>
-            </button>
-
-        </form>
-
+            </form>
+        </div>
         <div class="col s6">
             <canvas id="salesChart"></canvas>
         </div>
@@ -109,34 +108,41 @@
 
     <div class="row">
         <div class="col s6">
-
-            <table>
-                <thead>
-                <tr>
-                    <th>Year Quarter</th>
-                    <th>Moving average</th>
-                    <th>Disabled</th>
-                    <th>Rating Only</th>
-                    <th>Seasons Only</th>
-                    <th>Rating & Seasons</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="entry:${statistic.methodEvaluation.get('Number')}">
-                    <td th:text="${entry.key}"></td>
-                    <td th:text="'<' + ${entry.value.get('Moving average').first} + '_' + ${entry.value.get('Moving average').second} + '>'"></td>
-                    <td th:text="'<' + ${entry.value.get('Disabled').first} + '_' + ${entry.value.get('Disabled').second} + '>'"></td>
-                    <td th:text="'<' + ${entry.value.get('RatingOnly').first} + '_' + ${entry.value.get('RatingOnly').second} + '>'"></td>
-                    <td th:text="'<' + ${entry.value.get('SeasonsOnly').first} + '_' + ${entry.value.get('SeasonsOnly').second} + '>'"></td>
-                    <td th:text="'<' + ${entry.value.get('Rating And Seasons').first} + '_' + ${entry.value.get('Rating And Seasons').second} + '>'"></td>
-                </tr>
-                </tbody>
-            </table>
+            <h3>Lost profit</h3>
+            <canvas id="couldSoldChart"></canvas>
         </div>
         <div class="col s6">
-            <canvas id="moneyChart"></canvas>
+            <h3>Redundant purchase</h3>
+            <canvas id="redundantPurchaseChart"></canvas>
         </div>
     </div>
+
+    <div class="container row">
+        <table>
+            <thead>
+            <tr>
+                <th>Year Quarter</th>
+                <th>Moving average</th>
+                <th>Disabled</th>
+                <th>Rating Only</th>
+                <th>Seasons Only</th>
+                <th>Rating & Seasons</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry:${statistic.methodEvaluation.get('Number')}">
+                <td th:text="${entry.key}"></td>
+                <td th:text="'<' + ${entry.value.get('Moving average').first} + '_' + ${entry.value.get('Moving average').second} + '>'"></td>
+                <td th:text="'<' + ${entry.value.get('Disabled').first} + '_' + ${entry.value.get('Disabled').second} + '>'"></td>
+                <td th:text="'<' + ${entry.value.get('RatingOnly').first} + '_' + ${entry.value.get('RatingOnly').second} + '>'"></td>
+                <td th:text="'<' + ${entry.value.get('SeasonsOnly').first} + '_' + ${entry.value.get('SeasonsOnly').second} + '>'"></td>
+                <td th:text="'<' + ${entry.value.get('Rating And Seasons').first} + '_' + ${entry.value.get('Rating And Seasons').second} + '>'"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
 </main>
 <!--<footer>-->
 <!--<div th:replace="fragments/footer :: footer"/>-->
@@ -277,7 +283,9 @@
         }
     });
 
-    var moneyChart = null;
+    var couldSoldChart = null;
+    var redundantPurchaseChart = null;
+
     document.addEventListener('DOMContentLoaded', function () {
         var elem = document.querySelector('.collapsible.expandable');
         var instance = M.Collapsible.init(elem, {
@@ -291,66 +299,67 @@
         var yearMonths = Object.keys(moneyDataMap);
         var moneyData = Object.values(moneyDataMap);
 
-        let movingAverageData = moneyData.map(moneyDataPair => {
+        let movingAverageDataCould = moneyData.map(moneyDataPair => {
             var test = moneyDataPair ['Moving average']
-            return  test.second - test.first
+            return  test.first
         });
 
-        let disabledData = moneyData.map(moneyDataPair => {
+        let disabledDataCould = moneyData.map(moneyDataPair => {
             var test = moneyDataPair ['Disabled']
-            return  test.second - test.first
+            console.log(test)
+            return  test.first
         });
-        let ratingData = moneyData.map(moneyDataPair => {
+        let ratingDataCould = moneyData.map(moneyDataPair => {
             var test = moneyDataPair ['RatingOnly']
-            return  test.second - test.first
+            console.log(test)
+            return  test.first
         });
-        let seasonsData = moneyData.map(moneyDataPair => {
+        let seasonsDataCould = moneyData.map(moneyDataPair => {
             var test = moneyDataPair ['SeasonsOnly']
-            return  test.second - test.first
+            console.log(test)
+            return  test.first
         });
-        let ratingAndSeasonsData = moneyData.map(moneyDataPair => {
+        let ratingAndSeasonsDataCould = moneyData.map(moneyDataPair => {
             var test = moneyDataPair ['Rating And Seasons']
-            return  test.second - test.first
+            console.log(test)
+            return  test.first
         });
 
-
-        var ctx = document.getElementById("moneyChart").getContext('2d');
-
-        var data = {
+        var couldCtx = document.getElementById("couldSoldChart").getContext('2d');
+        var couldData = {
             labels: yearMonths,
             datasets: [
                 {
                     label: "Moving average",
                     backgroundColor: "black",
-                    data: movingAverageData
+                    data: movingAverageDataCould
                 },
                 {
                     label: "Disabled",
                     backgroundColor: "red",
-                    data: disabledData
+                    data: disabledDataCould
                 },
                 {
                     label: "Rating only",
                     backgroundColor: "purple",
-                    data: ratingData
+                    data: ratingDataCould
                 },
                 {
                     label: "Seasons only",
                     backgroundColor: "orange",
-                    data: seasonsData
+                    data: seasonsDataCould
                 },
                 {
                     label: "Rating & seasons",
                     backgroundColor: "blue",
-                    data: ratingAndSeasonsData
+                    data: ratingAndSeasonsDataCould
                 }
             ]
         };
-
-        if (moneyChart == null) {
-            moneyChart = new Chart(ctx, {
+        if (couldSoldChart == null) {
+            couldSoldChart = new Chart(couldCtx, {
                 type: 'bar',
-                data: data,
+                data: couldData,
                 options: {
                     barValueSpacing: 20,
                     scales: {
@@ -362,35 +371,139 @@
                     }
                 }
             });
-        } else {
-            moneyChart.data.labels = yearMonths;
-            moneyChart.data.datasets = [
+        }
+        else {
+            couldSoldChart.data.labels = yearMonths;
+            couldSoldChart.data.datasets = [
                 {
                 label: "Moving average",
                 backgroundColor: "black",
-                data: movingAverageData
+                data: movingAverageDataCould
             },
                 {
                     label: "Disabled",
                     backgroundColor: "red",
-                    data: disabledData
+                    data: disabledDataCould
                 },
                 {
                     label: "Rating only",
                     backgroundColor: "purple",
-                    data: ratingData
+                    data: ratingDataCould
                 },
                 {
                     label: "Seasons only",
                     backgroundColor: "orange",
-                    data: seasonsData
+                    data: seasonsDataCould
                 },
                 {
                     label: "Rating & seasons",
                     backgroundColor: "blue",
-                    data: ratingAndSeasonsData
+                    data: ratingAndSeasonsDataCould
                 }];
-            moneyChart.update();
+            couldSoldChart.update();
+        }
+
+
+
+
+        let movingAverageDataRedundant = moneyData.map(moneyDataPair => {
+            var test = moneyDataPair ['Moving average']
+            return  test.second
+        });
+
+        let disabledDataRedundant = moneyData.map(moneyDataPair => {
+            var test = moneyDataPair ['Disabled']
+            return  test.second
+        });
+        let ratingDataRedundant = moneyData.map(moneyDataPair => {
+            var test = moneyDataPair ['RatingOnly']
+            return  test.second
+        });
+        let seasonsDataRedundant = moneyData.map(moneyDataPair => {
+            var test = moneyDataPair ['SeasonsOnly']
+            return  test.second
+        });
+        let ratingAndSeasonsDataRedundant = moneyData.map(moneyDataPair => {
+            var test = moneyDataPair ['Rating And Seasons']
+            return  test.second
+        });
+
+        var redundantCtx = document.getElementById("redundantPurchaseChart").getContext('2d');
+        var redundantData = {
+            labels: yearMonths,
+            datasets: [
+                {
+                    label: "Moving average",
+                    backgroundColor: "black",
+                    data: movingAverageDataRedundant
+                },
+                {
+                    label: "Disabled",
+                    backgroundColor: "red",
+                    data: disabledDataRedundant
+                },
+                {
+                    label: "Rating only",
+                    backgroundColor: "purple",
+                    data: ratingDataRedundant
+                },
+                {
+                    label: "Seasons only",
+                    backgroundColor: "orange",
+                    data: seasonsDataRedundant
+                },
+                {
+                    label: "Rating & seasons",
+                    backgroundColor: "blue",
+                    data: ratingAndSeasonsDataRedundant
+                }
+            ]
+        };
+        if (redundantPurchaseChart == null) {
+            redundantPurchaseChart = new Chart(redundantCtx, {
+                type: 'bar',
+                data: redundantData,
+                options: {
+                    barValueSpacing: 20,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                min: 0,
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+        else {
+            redundantPurchaseChart.data.labels = yearMonths;
+            redundantPurchaseChart.data.datasets = [
+                {
+                    label: "Moving average",
+                    backgroundColor: "black",
+                    data: movingAverageDataRedundant
+                },
+                {
+                    label: "Disabled",
+                    backgroundColor: "red",
+                    data: disabledDataRedundant
+                },
+                {
+                    label: "Rating only",
+                    backgroundColor: "purple",
+                    data: ratingDataRedundant
+                },
+                {
+                    label: "Seasons only",
+                    backgroundColor: "orange",
+                    data: seasonsDataRedundant
+                },
+                {
+                    label: "Rating & seasons",
+                    backgroundColor: "blue",
+                    data: ratingAndSeasonsDataRedundant
+                }];
+            redundantPurchaseChart.update();
         }
 
     });
